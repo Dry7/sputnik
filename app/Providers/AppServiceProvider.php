@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Providers;
+namespace Sputnik\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
