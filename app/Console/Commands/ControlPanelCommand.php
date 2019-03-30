@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sputnik\Console\Commands;
 
 use Illuminate\Console\Command;
+use Sputnik\Services\FlightProgramService;
 
 class ControlPanelCommand extends Command
 {
@@ -27,8 +28,10 @@ class ControlPanelCommand extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(FlightProgramService $flightProgramService)
     {
         echo "sdf";
+
+        $flightProgramService->load(storage_path('flight_program.json'));
     }
 }
