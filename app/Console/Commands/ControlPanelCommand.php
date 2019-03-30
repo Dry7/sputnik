@@ -26,12 +26,12 @@ class ControlPanelCommand extends Command
     /**
      * Execute the console command.
      *
+     * @param FlightProgramService $flightProgramService
+     *
      * @return mixed
      */
     public function handle(FlightProgramService $flightProgramService)
     {
-        echo "sdf";
-
         $flightProgramService->load(storage_path('flight_program.json'));
     }
 }

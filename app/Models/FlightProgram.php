@@ -7,6 +7,7 @@ namespace Sputnik\Models;
 use Sputnik\Exceptions\InvalidFlightProgram;
 use Sputnik\Helpers\Validation;
 use Iterator;
+use Sputnik\Models\Events\Event;
 use stdClass;
 use Sputnik\Models\Operations\Operation;
 
@@ -17,6 +18,9 @@ class FlightProgram
 
     /** @var Operation[]|Iterator */
     private $operations;
+
+    /** @var array */
+    private $schedule;
 
     public function __construct(int $startUp, Iterator $operations)
     {
@@ -45,6 +49,26 @@ class FlightProgram
     public function getOperations(): Iterator
     {
         return $this->operations;
+    }
+
+    public function getSchedule(): array
+    {
+        return $this->schedule;
+    }
+
+    public function createSchedule(): array
+    {
+        $this->schedule = [];
+
+        foreach ($this->operations as $operation) {
+            $time = $operation->time($this->startUp);
+            $checkTime = $time + $operation->timeout();
+
+            $this->schedule[] = Event::createEvent($time, Event::TYPE_START_OPERATION, $operation);
+            $this->schedule[] = Event::createEvent($checkTime, Event::TYPE_CHECK_OPERATION_RESULTS, $operation);
+        }
+
+        return $this->schedule;
     }
 
     private function setStartUp(int $value): self

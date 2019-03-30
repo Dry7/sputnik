@@ -65,19 +65,6 @@ abstract class Operation
         $this->validate();
     }
 
-    public function __toString()
-    {
-        return json_encode([
-            'class' => static::class,
-            'id' => $this->id,
-            'deltaT' => $this->deltaT,
-            'variable' => $this->variable,
-            'value' => $this->value,
-            'timeout' => $this->timeout,
-            'critical' => $this->critical,
-        ]);
-    }
-
     public static function createOperation(int $id, int $deltaT, string $variable, int $value, int $timeout, bool $critical = self::CRITICAL_DEFAULT): self
     {
         switch ($variable) {
@@ -131,6 +118,77 @@ abstract class Operation
         );
     }
 
+    /**
+     * @return int
+     */
+    public function getID(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function deltaT(): int
+    {
+        return $this->deltaT;
+    }
+
+    /**
+     * @return string
+     */
+    public function variable(): string
+    {
+        return $this->variable;
+    }
+
+    /**
+     * @return int
+     */
+    public function value(): int
+    {
+        return $this->value;
+    }
+
+    /**
+     * @return int
+     */
+    public function timeout(): int
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * @return bool
+     */
+    public function critical(): bool
+    {
+        return $this->critical;
+    }
+
+    /**
+     * @param int $startUp
+     *
+     * @return int
+     */
+    public function time(int $startUp): int
+    {
+        return $startUp + $this->deltaT;
+    }
+
+    public function __toString()
+    {
+        return json_encode([
+            'class' => static::class,
+            'id' => $this->id,
+            'deltaT' => $this->deltaT,
+            'variable' => $this->variable,
+            'value' => $this->value,
+            'timeout' => $this->timeout,
+            'critical' => $this->critical,
+        ]);
+    }
+
     protected function validate(): bool
     {
         return $this->value >= static::MIN_VALUE && $this->value <= static::MAX_VALUE;
@@ -144,7 +202,7 @@ abstract class Operation
     private function setId(int $value): self
     {
         if ($value === 0 || !Validation::isUInt32($value)) {
-            throw InvalidOperation::id(['operation' => $this]);
+            throw InvalidOperation::id(['operation' => $this, 'value' => $value]);
         }
 
         $this->id = $value;
@@ -160,7 +218,7 @@ abstract class Operation
     private function setDeltaT(int $value): self
     {
         if (!Validation::isUInt32($value)) {
-            throw InvalidOperation::deltaT(['operation' => $this]);
+            throw InvalidOperation::deltaT(['operation' => $this, 'value' => $value]);
         }
 
         $this->deltaT = $value;
@@ -176,7 +234,7 @@ abstract class Operation
     private function setVariable(string $value): self
     {
         if (!in_array($value, self::VARIABLES)) {
-            throw InvalidOperation::variable(['operation' => $this]);
+            throw InvalidOperation::variable(['operation' => $this, 'value' => $value]);
         }
 
         $this->variable = $value;
@@ -192,7 +250,7 @@ abstract class Operation
     private function setValue(int $value): self
     {
         if (!Validation::isUInt32($value)) {
-            throw InvalidOperation::value(['operation' => $this]);
+            throw InvalidOperation::value(['operation' => $this, 'value' => $value]);
         }
 
         $this->value = $value;
@@ -208,7 +266,7 @@ abstract class Operation
     private function setTimeout(int $value): self
     {
         if ($value === 0 || !Validation::isUInt32($value)) {
-            throw InvalidOperation::timeout(['operation' => (string)$this]);
+            throw InvalidOperation::timeout(['operation' => (string)$this, 'value' => $value]);
         }
 
         $this->timeout = $value;

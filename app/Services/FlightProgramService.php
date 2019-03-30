@@ -21,10 +21,11 @@ class FlightProgramService
 
         print_r($flightProgram);
 
-        foreach ($flightProgram->getOperations() as $operation) {
-            echo "\n";
-            print_r((string)$operation);
-        }
+//        foreach ($flightProgram->getOperations() as $operation) {
+//            echo "\n";
+//            print_r((string)$operation);
+//        }
         echo "\n";
+        print_r($flightProgram->createSchedule());
     }
 }
