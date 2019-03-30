@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sputnik\Services;
 
+use Sputnik\Exceptions\InvalidFlightProgram;
 use Sputnik\Models\FlightProgram;
 
 class FlightProgramService
@@ -13,11 +14,17 @@ class FlightProgramService
      */
     public function load(string $fileName)
     {
+        if (!file_exists($fileName)) {
+            throw InvalidFlightProgram::fileNotFound(['fileName' => $fileName]);
+        } elseif (!is_file($fileName)) {
+            throw InvalidFlightProgram::notFile(['fileName' => $fileName]);
+        } elseif (!is_readable($fileName)) {
+            throw InvalidFlightProgram::permissionDenied(['fileName' => $fileName]);
+        }
+
         $file = file_get_contents($fileName);
 
-        $data = json_decode($file);
-
-        $flightProgram = FlightProgram::fromJson($data);
+        $flightProgram = FlightProgram::fromJson($file);
 
         print_r($flightProgram);
 

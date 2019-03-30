@@ -8,7 +8,6 @@ use Sputnik\Exceptions\InvalidFlightProgram;
 use Sputnik\Helpers\Validation;
 use Iterator;
 use Sputnik\Models\Events\Event;
-use stdClass;
 use Sputnik\Models\Operations\Operation;
 
 class FlightProgram
@@ -28,14 +27,24 @@ class FlightProgram
         $this->setOperations($operations);
     }
 
-    public static function fromJson(stdClass $data): self
+    public static function fromJson(string $json): self
     {
+        $data = json_decode($json);
+
+        if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+            throw InvalidFlightProgram::json([
+                'method' => 'fromJson',
+                'error' => json_last_error_msg(),
+                'json' => $json
+            ]);
+        }
+
         if (!isset($data->startUp) || !is_int($data->startUp)) {
-            throw InvalidFlightProgram::startUp(['method' => 'fromJson', 'data' => $data]);
+            throw InvalidFlightProgram::startUp(['method' => 'fromJson', 'data' => $data, 'json' => $json]);
         }
 
         if (!isset($data->operations) || !is_array($data->operations)) {
-            throw InvalidFlightProgram::operations(['method' => 'fromJson', 'data' => $data]);
+            throw InvalidFlightProgram::operations(['method' => 'fromJson', 'data' => $data, 'json' => $json]);
         }
 
         return new static($data->startUp, self::createOperations($data->operations));
