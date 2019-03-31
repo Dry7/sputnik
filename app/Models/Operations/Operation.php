@@ -78,7 +78,7 @@ abstract class Operation
                 return new MainEngineThrustPctOperation($id, $deltaT, $value, $timeout, $critical);
 
             case self::ORIENTATION_AZIMUTH_ANGLE_DEG:
-                return new OrientationAzumithAngleDegOperation($id, $deltaT, $value, $timeout, $critical);
+                return new OrientationAzimuthAngleDegOperation($id, $deltaT, $value, $timeout, $critical);
 
             case self::ORIENTATION_ZENITH_ANGLE_DEG:
                 return new OrientationZenithAngleDegOperation($id, $deltaT, $value, $timeout, $critical);
@@ -100,7 +100,7 @@ abstract class Operation
         }
     }
 
-    public static function createOperationFromJson(stdClass $operation)
+    public static function createOperationFromJsonObject(stdClass $operation)
     {
         foreach (['id', 'deltaT', 'variable', 'value', 'timeout'] as $property) {
             if (!isset($operation->$property)) {
@@ -189,9 +189,13 @@ abstract class Operation
         ]);
     }
 
-    protected function validate(): bool
+    public function validate(): bool
     {
-        return $this->value >= static::MIN_VALUE && $this->value <= static::MAX_VALUE;
+        if ($this->value >= static::MIN_VALUE && $this->value <= static::MAX_VALUE) {
+            return true;
+        } else {
+            throw InvalidOperation::value(['operation' => $this]);
+        }
     }
 
     /**
@@ -199,7 +203,7 @@ abstract class Operation
      *
      * @return Operation
      */
-    private function setId(int $value): self
+    public function setId(int $value): self
     {
         if ($value === 0 || !Validation::isUInt32($value)) {
             throw InvalidOperation::id(['operation' => $this, 'value' => $value]);
@@ -215,7 +219,7 @@ abstract class Operation
      *
      * @return Operation
      */
-    private function setDeltaT(int $value): self
+    public function setDeltaT(int $value): self
     {
         if (!Validation::isUInt32($value)) {
             throw InvalidOperation::deltaT(['operation' => $this, 'value' => $value]);
@@ -231,7 +235,7 @@ abstract class Operation
      *
      * @return Operation
      */
-    private function setVariable(string $value): self
+    public function setVariable(string $value): self
     {
         if (!in_array($value, self::VARIABLES)) {
             throw InvalidOperation::variable(['operation' => $this, 'value' => $value]);
@@ -247,7 +251,7 @@ abstract class Operation
      *
      * @return Operation
      */
-    private function setValue(int $value): self
+    public function setValue(int $value): self
     {
         if (!Validation::isUInt32($value)) {
             throw InvalidOperation::value(['operation' => $this, 'value' => $value]);
@@ -263,7 +267,7 @@ abstract class Operation
      *
      * @return Operation
      */
-    private function setTimeout(int $value): self
+    public function setTimeout(int $value): self
     {
         if ($value === 0 || !Validation::isUInt32($value)) {
             throw InvalidOperation::timeout(['operation' => (string)$this, 'value' => $value]);
@@ -279,7 +283,7 @@ abstract class Operation
      *
      * @return Operation
      */
-    private function setCritical(bool $value): self
+    public function setCritical(bool $value): self
     {
         $this->critical = $value;
 
