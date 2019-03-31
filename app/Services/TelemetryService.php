@@ -8,7 +8,7 @@ use Sputnik\Models\Operations\Operation;
 
 class TelemetryService
 {
-    private const OPERATIONS = [
+    public const OPERATIONS = [
         Operation::ORIENTATION_AZIMUTH_ANGLE_DEG,
         Operation::ORIENTATION_ZENITH_ANGLE_DEG,
         Operation::VESSEL_ALTITUDE_M,
@@ -17,8 +17,20 @@ class TelemetryService
         Operation::TEMPERATURE_INTERNAL_DEG,
     ];
 
-    public function send()
+    public function send(array $variables)
     {
+        echo "\nTelemetry::send ";
+        echo json_encode([
+            'type' => 'values',
+            'timestamp' => now()->timestamp,
+            'message' => $this->createMessage($variables),
+        ]);
+    }
 
+    private function createMessage(array $variables)
+    {
+        return http_build_query(collect(self::OPERATIONS)->mapWithKeys(function ($item) use ($variables) {
+            return [$item => $variables[$item]];
+        })->toArray());
     }
 }
