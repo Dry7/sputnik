@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace Sputnik\Models\Events;
 
+use Sputnik\Exceptions\EventException;
 use Sputnik\Exceptions\InvalidEvent;
 use Sputnik\Models\Operations\Operation;
 
-class Event
+abstract class Event
 {
     public const TYPE_START_OPERATION = 'start_operation';
     public const TYPE_CHECK_OPERATION_RESULTS = 'check_operation_results';
-    public const TYPE_TELEMETRY = 'telemetry';
 
     protected const TYPES = [
         self::TYPE_START_OPERATION,
         self::TYPE_CHECK_OPERATION_RESULTS,
-        self::TYPE_TELEMETRY,
     ];
 
     /** @var int */
@@ -27,9 +26,6 @@ class Event
 
     /** @var Operation|null */
     private $operation;
-
-    /** @var bool */
-    private $processed = false;
 
     /**
      * Event constructor.
@@ -45,14 +41,32 @@ class Event
         $this->setOperation($operation);
     }
 
+    abstract public function execute();
+
+    public function validateResult($data): bool
+    {
+        if (!isset($data->{$this->getOperation()->variable()}->set)
+            || !isset($data->{$this->getOperation()->variable()}->value)
+        ) {
+            throw EventException::failedCheck(['event' => $this, 'data' => json_encode($data)]);
+        }
+
+        /** @var Operation $validateOperation */
+        $validateOperation = clone $this->getOperation();
+        $validateOperation->setValue($data->{$this->getOperation()->variable()}->set)->validate();
+        $validateOperation->setValue($data->{$this->getOperation()->variable()}->value)->validate();
+
+        return true;
+    }
+
     /**
      * @param int $time
      * @param string $type
-     * @param Operation|null $operation
+     * @param Operation $operation
      *
      * @return Event
      */
-    public static function createEvent(int $time, string $type, Operation $operation = null): self
+    public static function createEvent(int $time, string $type, Operation $operation): self
     {
         switch ($type) {
             case self::TYPE_START_OPERATION:
@@ -60,9 +74,6 @@ class Event
 
             case self::TYPE_CHECK_OPERATION_RESULTS:
                 return new CheckOperationResultsEvent($time, $operation);
-
-            case self::TYPE_TELEMETRY:
-                return new TelemetryEvent($time);
 
             default:
                 throw InvalidEvent::type([
@@ -90,19 +101,11 @@ class Event
     }
 
     /**
-     * @return Operation|null
+     * @return Operation
      */
-    public function getOperation(): ?Operation
+    public function getOperation(): Operation
     {
         return $this->operation;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasProcessed(): bool
-    {
-        return $this->processed;
     }
 
     /**
@@ -138,29 +141,13 @@ class Event
     }
 
     /**
-     * @param Operation|null $value
+     * @param Operation $value
      *
      * @return Event
      */
-    public function setOperation(?Operation $value): self
+    public function setOperation(Operation $value): self
     {
-        if ($value !== null && !($value instanceof Operation)) {
-            throw InvalidEvent::operation(['event' => $this, 'value' => $value]);
-        }
-
         $this->operation = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param bool $value
-     *
-     * @return Event
-     */
-    public function setProcessed(bool $value): self
-    {
-        $this->processed = $value;
 
         return $this;
     }
