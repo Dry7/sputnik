@@ -1,16 +1,19 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/settings/{operations}', function (Request $request, $operations) {
+    return '..' . json_encode(
+        collect(explode(',', $operations))->mapWithKeys(function ($item) { return [$item => ['set' => (int)Cache::get($item), 'value' => (int)Cache::get($item)]]; })
+    );
+});
+
+Route::patch('/settings', function (Request $request) {
+    return '..' . json_encode(
+        collect($request->json()->all())->map(function ($item, $key) {
+            Cache::set($key, $item);
+            return ['set' => $item, 'value' => $item];
+        })
+    );
 });
