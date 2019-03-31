@@ -73,35 +73,49 @@ class FlightProgram
             $time = $operation->time($this->startUp);
             $checkTime = $time + $operation->timeout();
 
-            $this->schedule[] = Event::createEvent($time, Event::TYPE_START_OPERATION, $operation);
-            $this->schedule[] = Event::createEvent($checkTime, Event::TYPE_CHECK_OPERATION_RESULTS, $operation);
+            $this->pushToSchedule(Event::createEvent($time, Event::TYPE_START_OPERATION, $operation));
+            $this->pushToSchedule(Event::createEvent($checkTime, Event::TYPE_CHECK_OPERATION_RESULTS, $operation));
         }
 
         return $this->schedule;
     }
 
-    private function setStartUp(int $value): self
+    public function setStartUp(int $value): self
     {
         if (!Validation::isUInt32($value)) {
-            throw InvalidFlightProgram::startUp(['operation' => $this]);
+            throw InvalidFlightProgram::startUp(['operation' => $this, 'value' => $value]);
         }
 
         $this->startUp = $value;
+//        $this->startUp = now()->timestamp + 10;
 
         return $this;
     }
 
-    private function setOperations(Iterator $operations): self
+    public function setOperations(Iterator $operations): self
     {
         $this->operations = $operations;
 
         return $this;
     }
 
+    private function pushToSchedule(Event $event): void
+    {
+        if (isset($this->schedule[$event->getTime()])) {
+            if (isset($this->schedule[$event->getTime()][$event->getType()])) {
+                $this->schedule[$event->getTime()][$event->getType()][] = $event;
+            } else {
+                $this->schedule[$event->getTime()][$event->getType()] = [$event];
+            }
+        } else {
+            $this->schedule[$event->getTime()] = [$event->getType() => [$event]];
+        }
+    }
+
     private static function createOperations(array $operations): Iterator
     {
         foreach ($operations as $operation) {
-            yield Operation::createOperationFromJson($operation);
+            yield Operation::createOperationFromJsonObject($operation);
         }
     }
 }
