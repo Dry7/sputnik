@@ -32,6 +32,8 @@ class ControlPanelCommand extends Command
      */
     public function handle(FlightProgramService $flightProgramService)
     {
-        $flightProgramService->load(storage_path('flight_program.json'));
+        $flightProgram = $flightProgramService->load(storage_path('flight_program.json'));
+
+        $flightProgramService->run($flightProgram);
     }
 }
