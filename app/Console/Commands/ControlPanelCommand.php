@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sputnik\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Sputnik\Services\FlightProgramService;
 
 class ControlPanelCommand extends Command

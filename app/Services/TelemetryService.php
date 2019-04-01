@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sputnik\Services;
 
+use Illuminate\Support\Facades\Log;
 use Sputnik\Models\Operations\Operation;
 
 class TelemetryService
@@ -19,12 +20,13 @@ class TelemetryService
 
     public function send(array $variables)
     {
-        echo "\nTelemetry::send ";
-        echo json_encode([
+        Log::info("Telemetry::send", $variables);
+
+        fwrite(STDOUT, "\n" . json_encode([
             'type' => 'values',
             'timestamp' => now()->timestamp,
             'message' => $this->createMessage($variables),
-        ]);
+        ]));
     }
 
     private function createMessage(array $variables)

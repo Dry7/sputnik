@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace Sputnik\Exceptions;
 
-use Exception;
 use Throwable;
 
-class InvalidFlightProgram extends Exception
+class InvalidFlightProgram extends BaseException
 {
-    private $context;
-
     function __construct($message = "", $context = [], $code = 0, Throwable $previous = null)
     {
-        $this->context = $context;
+        $this->setContext($context);
 
         parent::__construct($message, $code, $previous);
     }

@@ -7,13 +7,11 @@ namespace Sputnik\Exceptions;
 use Exception;
 use Throwable;
 
-class ExchangeException extends Exception
+class ExchangeException extends BaseException
 {
-    private $context;
-
     public function __construct($message = "", $context = [], $code = 0, Throwable $previous = null)
     {
-        $this->context = $context;
+        $this->setContext($context);
 
         parent::__construct($message, $code, $previous);
     }

@@ -6,6 +6,7 @@ namespace Sputnik\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface as Response;
 use Sputnik\Exceptions\ExchangeException;
 
@@ -33,7 +34,8 @@ class ExchangeService
 
     public function get(array $variables)
     {
-        echo "\nExchangeService::get " . print_r($variables, true);
+        Log::info('ExchangeService::get', $variables);
+
         $response = $this->client->get(
             $this->uri . self::ENDPOINT . '/' . implode(',', $variables),
             $this->clientOptions
@@ -44,7 +46,8 @@ class ExchangeService
 
     public function patch(array $variables)
     {
-        echo "\nExchangeService::patch " . print_r($variables, true);
+        Log::info('ExchangeService::patch', $variables);
+
         $response = $this->client->patch($this->uri . self::ENDPOINT, $this->clientOptions + [
             RequestOptions::JSON => $variables
         ]);
@@ -57,7 +60,8 @@ class ExchangeService
         $html = $response->getBody()->getContents();
         $json = json_decode($html);
 
-        echo "\nExchangeService::parseResult " . $html;
+        Log::info('ExchangeService::parseResult', ['html' => $html]);
+
         if ($json === null && json_last_error() !== JSON_ERROR_NONE) {
             throw ExchangeException::json([
                 'html' => $html,

@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    'default' => env('LOG_CHANNEL', 'sputnik'),
 
     /*
     |--------------------------------------------------------------------------
@@ -74,10 +74,21 @@ return [
         'stderr' => [
             'driver' => 'monolog',
             'handler' => StreamHandler::class,
-            'formatter' => env('LOG_STDERR_FORMATTER'),
+            'formatter' => \Sputnik\Logging\ErrorFormatter::class,
             'with' => [
                 'stream' => 'php://stderr',
             ],
+            'level' => 'warning',
+        ],
+
+        'stdout' => [
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'formatter' => \Sputnik\Logging\LogFormatter::class,
+            'with' => [
+                'stream' => 'php://stdout',
+            ],
+            'level' => 'info',
         ],
 
         'syslog' => [
@@ -88,6 +99,11 @@ return [
         'errorlog' => [
             'driver' => 'errorlog',
             'level' => 'debug',
+        ],
+
+        'sputnik' => [
+            'driver' => 'stack',
+            'channels' => ['stdout', 'stderr'],
         ],
     ],
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sputnik\Services;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Sputnik\Exceptions\InvalidFlightProgram;
 use Sputnik\Models\Events\Event;
 use Sputnik\Models\FlightProgram;
@@ -60,7 +61,7 @@ class FlightProgramService
 
         $startTime = now()->timestamp;
 
-        $maxTime = max(array_keys($schedule));
+        $maxTime = max(array_keys($schedule)) ?? $startTime;
 
         $time = now()->timestamp;
 
@@ -68,7 +69,8 @@ class FlightProgramService
             $time = now()->timestamp;
             $isTelemetry = ($time - $startTime)%$this->telemetryFreq === 0;
 
-            echo "\n" . $time . " ";
+            Log::info('Start time: ' . $time);
+
             $this->executeChecks(
                 collect($schedule[$time][Event::TYPE_CHECK_OPERATION_RESULTS] ?? []),
                 $isTelemetry
@@ -89,7 +91,12 @@ class FlightProgramService
             return;
         }
 
-        echo "\nExecute Starts - " . $events->map(function (Event $event) { return $event->getOperation()->getID(); })->implode(', ');
+        Log::info('Execute Starts: ', [
+            'events' => $events
+                ->map(function (Event $event) { return $event->getOperation()->getID(); })
+                ->implode(', '),
+            ]
+        );
 
         if ($events->count() === 1) {
             $events[0]->execute();
@@ -123,7 +130,12 @@ class FlightProgramService
             return;
         }
 
-        echo "\nExecute Checks - " . $events->map(function (Event $event) { return $event->getOperation()->getID(); })->implode(', ');
+        Log::info('Execute checks: ', [
+                'events' => $events
+                    ->map(function (Event $event) { return $event->getOperation()->getID(); })
+                    ->implode(', '),
+            ]
+        );
 
         if ($events->count() === 1 && !$isTelemetry) {
             $events[0]->execute();
