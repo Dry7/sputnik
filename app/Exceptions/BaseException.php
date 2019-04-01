@@ -8,6 +8,9 @@ use Exception;
 
 class BaseException extends Exception
 {
+    const TIMEOUT = 11;
+    const INVALID_EXCHANGE_RESPONSE = 12;
+
     protected $context = [];
 
     public function getContext(): array

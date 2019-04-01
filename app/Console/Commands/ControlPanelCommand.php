@@ -31,8 +31,10 @@ class ControlPanelCommand extends Command
      *
      * @return mixed
      */
-    public function handle(FlightProgramService $flightProgramService)
+    public function handle(FlightProgramService $flightProgramService): void
     {
+        Log::info('Let`s go');
+
         $flightProgram = $flightProgramService->load(storage_path('flight_program.json'));
 
         $flightProgramService->run($flightProgram);

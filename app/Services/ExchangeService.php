@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Sputnik\Services;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface as Response;
 use Sputnik\Exceptions\ExchangeException;
+use Sputnik\Exceptions\TimeoutException;
 
 class ExchangeService
 {
@@ -36,7 +39,7 @@ class ExchangeService
     {
         Log::info('ExchangeService::get', $variables);
 
-        $response = $this->client->get(
+        $response = $this->request(Request::METHOD_GET,
             $this->uri . self::ENDPOINT . '/' . implode(',', $variables),
             $this->clientOptions
         );
@@ -48,11 +51,32 @@ class ExchangeService
     {
         Log::info('ExchangeService::patch', $variables);
 
-        $response = $this->client->patch($this->uri . self::ENDPOINT, $this->clientOptions + [
+        $response = $this->request(Request::METHOD_PATCH, $this->uri . self::ENDPOINT, $this->clientOptions + [
             RequestOptions::JSON => $variables
         ]);
 
         return $this->parseResult($response);
+    }
+
+    /**
+     * @param string $method
+     * @param string $url
+     * @param array $options
+     *
+     * @return mixed|Response
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    private function request(string $method, string $url, array $options = [])
+    {
+        try {
+            return $this->client->request($method,
+                $url,
+                $options
+            );
+        } catch (ConnectException $exception) {
+            throw TimeoutException::timeout(['method' => $method, 'url' => $url, 'options' => $options]);
+        }
     }
 
     private function parseResult(Response $response)
