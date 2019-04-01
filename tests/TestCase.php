@@ -2,7 +2,11 @@
 
 namespace Tests;
 
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Collection;
 use Iterator;
 use Sputnik\Models\Events\Event;
 use Sputnik\Models\Operations\Operation;
@@ -25,6 +29,16 @@ abstract class TestCase extends BaseTestCase
         }
 
         return $result;
+    }
+
+    protected function mockHttpHistory(...$queue): Collection
+    {
+        $history = collect();
+        $stack = app(HandlerStack::class);
+        $stack->setHandler(new MockHandler($queue));
+        $stack->push(Middleware::history($history));
+
+        return $history;
     }
 
     protected static function createOperation(): Operation

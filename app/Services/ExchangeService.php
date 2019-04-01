@@ -82,10 +82,11 @@ class ExchangeService
     {
         $html = $response->getBody()->getContents();
         $json = json_decode($html);
+        $isJsonDecode = $json === null && json_last_error() !== JSON_ERROR_NONE;
 
         Log::info('ExchangeService::parseResult', ['html' => $html]);
 
-        if ($json === null && json_last_error() !== JSON_ERROR_NONE) {
+        if ($isJsonDecode) {
             throw RequestException::json([
                 'html' => $html,
             ]);

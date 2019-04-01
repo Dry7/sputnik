@@ -3,6 +3,7 @@
 namespace Sputnik\Providers;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\TransferStats;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
@@ -19,8 +20,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $guzzleHandleStack = function () {
+            return HandlerStack::create();
+        };
+
+        if ($this->app->runningUnitTests()) {
+            $this->app->singleton(HandlerStack::class, $guzzleHandleStack);
+        } else {
+            $this->app->bind(HandlerStack::class, $guzzleHandleStack);
+        }
+
         $this->app->singleton(Client::class, function () {
             return new Client([
+                'handler' => app(HandlerStack::class),
                 'on_stats' => function (TransferStats $stats) {
                     Log::info('Request ' . $stats->getEffectiveUri(), $stats->getHandlerStats());
                 }
