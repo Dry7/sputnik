@@ -61,15 +61,17 @@ class FlightProgramService
 
         $startTime = now()->timestamp;
 
-        $maxTime = max(array_keys($schedule)) ?? $startTime;
+        $maxTime = $this->calculateEndTime($schedule, $startTime);
 
         $time = now()->timestamp;
 
-        while ($time <= $maxTime) {
-            $time = now()->timestamp;
+        Log::info("Start time: " . $startTime);
+        Log::info("End time: " . $maxTime);
+
+        do {
             $isTelemetry = ($time - $startTime)%$this->telemetryFreq === 0;
 
-            Log::info('Start time: ' . $time);
+            Log::info('Current time: ' . $time);
 
             $this->executeChecks(
                 collect($schedule[$time][Event::TYPE_CHECK_OPERATION_RESULTS] ?? []),
@@ -82,7 +84,8 @@ class FlightProgramService
                 $this->telemetryService->send($this->variables);
             }
             sleep(1);
-        }
+            $time = now()->timestamp;
+        } while ($time <= $maxTime);
     }
 
     private function executeStarts(Collection $events)
@@ -163,5 +166,14 @@ class FlightProgramService
         foreach ($data as $key => $value) {
             $this->variables[$key] = $value->value;
         }
+    }
+
+    private function calculateEndTime(array &$schedule, int $startTime): int
+    {
+        if (empty($schedule)) {
+            return $startTime;
+        }
+
+        return max(array_keys($schedule)) ?? $startTime;
     }
 }

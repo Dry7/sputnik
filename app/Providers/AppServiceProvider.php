@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Sputnik\Services\ExchangeService;
 use Sputnik\Services\FlightProgramService;
-use Sputnik\Services\LoggerService;
 use Sputnik\Services\TelemetryService;
 
 class AppServiceProvider extends ServiceProvider
@@ -41,6 +40,5 @@ class AppServiceProvider extends ServiceProvider
                 config('sputnik.telemetry_freq')
             );
         });
-        $this->app->singleton(LoggerService::class);
     }
 }

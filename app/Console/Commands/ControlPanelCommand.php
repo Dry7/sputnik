@@ -15,7 +15,7 @@ class ControlPanelCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'sputnik:control-panel';
+    protected $signature = 'sputnik:control-panel {--file=}';
 
     /**
      * The console command description.
@@ -35,7 +35,11 @@ class ControlPanelCommand extends Command
     {
         Log::info('Let`s go');
 
-        $flightProgram = $flightProgramService->load(storage_path('flight_program.json'));
+        $fileName = $this->option('file') ?? storage_path('flight_program.json');
+
+        Log::info('Filename: ' . $fileName);
+
+        $flightProgram = $flightProgramService->load($fileName);
 
         $flightProgramService->run($flightProgram);
     }
