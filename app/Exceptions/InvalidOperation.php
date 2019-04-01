@@ -17,7 +17,7 @@ class InvalidOperation extends BaseException
 
     public static function propertyNotFound($context = [])
     {
-        return new static('Invalid operation: id', $context);
+        return new static('Invalid operation', $context);
     }
 
     public static function id($context = [])
