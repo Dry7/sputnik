@@ -1,16 +1,17 @@
 <?php
 
-namespace Tests\Unit;
+declare(strict_types=1);
+
+namespace Tests\Unit\Models\Events;
 
 use Mockery\MockInterface;
-use Sputnik\Models\Events\CheckOperationResultsEvent;
 use Sputnik\Models\Events\StartOperationEvent;
 use Sputnik\Models\Operations\Operation;
 use Sputnik\Services\ExchangeService;
 use Tests\TestCase;
 use stdClass;
 
-class CheckOperationResultsEventTest extends TestCase
+class StartOperationEventTest extends TestCase
 {
     public function testExecute()
     {
@@ -24,14 +25,14 @@ class CheckOperationResultsEventTest extends TestCase
         ];
 
         /** @var MockInterface|StartOperationEvent $stub */
-        $stub = $this->spy(CheckOperationResultsEvent::class)
+        $stub = $this->spy(StartOperationEvent::class)
             ->makePartial()
             ->setTime(1555016400)
             ->setOperation($operation);
 
         $this->mock(ExchangeService::class, function ($mock) use ($operation, $data) {
-            $mock->shouldReceive('get')
-                ->with([$operation->variable()])
+            $mock->shouldReceive('patch')
+                ->with([$operation->variable() => $operation->value()])
                 ->andReturn($data)
                 ->once();
         });
@@ -53,7 +54,7 @@ class CheckOperationResultsEventTest extends TestCase
             ],
             [
                 (object)[
-                    Operation::MAIN_ENGINE_FUEL_PCT => (object)['set' => 10, 'value' => 0]
+                    Operation::MAIN_ENGINE_FUEL_PCT => (object)['set' => 0, 'value' => 10]
                 ],
             ],
         ];
@@ -74,7 +75,7 @@ class CheckOperationResultsEventTest extends TestCase
             0,
             1
         );
-        $event = new CheckOperationResultsEvent(1555016400, $operation);
+        $event = new StartOperationEvent(1555016400, $operation);
 
         // act
         $result = $event->validateResult($data);
@@ -116,9 +117,9 @@ class CheckOperationResultsEventTest extends TestCase
             ],
             'incorrect value' => [
                 (object)[
-                    Operation::MAIN_ENGINE_FUEL_PCT => (object)['set' => 0, 'value' => 5],
+                    Operation::MAIN_ENGINE_FUEL_PCT => (object)['set' => 0, 'value' => 200],
                 ],
-                'Sputnik\Exceptions\EventException',
+                'Sputnik\Exceptions\InvalidOperation',
             ],
         ];
     }
@@ -139,7 +140,7 @@ class CheckOperationResultsEventTest extends TestCase
             0,
             1
         );
-        $event = new CheckOperationResultsEvent(1555016400, $operation);
+        $event = new StartOperationEvent(1555016400, $operation);
 
         // assert
         self::expectException($exception);

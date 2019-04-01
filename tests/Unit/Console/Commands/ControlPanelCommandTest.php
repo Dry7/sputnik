@@ -1,6 +1,8 @@
 <?php
 
-namespace Tests\Unit;
+declare(strict_types=1);
+
+namespace Tests\Unit\Console\Command;
 
 use Sputnik\Console\Commands\ControlPanelCommand;
 use Sputnik\Models\FlightProgram;

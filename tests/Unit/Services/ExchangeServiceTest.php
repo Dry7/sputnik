@@ -1,6 +1,8 @@
 <?php
 
-namespace Tests\Unit;
+declare(strict_types=1);
+
+namespace Tests\Unit\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;

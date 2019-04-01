@@ -1,6 +1,8 @@
 <?php
 
-namespace Tests\Unit;
+declare(strict_types=1);
+
+namespace Tests\Unit\Models;
 
 use Sputnik\Exceptions\InvalidOperation;
 use Sputnik\Models\Operations\CoolingSystemPowerPctOperation;
