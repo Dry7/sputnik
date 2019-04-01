@@ -130,7 +130,7 @@ class StartOperationEventTest extends TestCase
      * @param stdClass $data
      * @param string $exception
      */
-    public function testValidateResultInvalid(stdClass $data, string $exception)
+    public function testValidateResultInvalidCritical(stdClass $data, string $exception)
     {
         // arrange
         $operation = Operation::createOperation(
@@ -147,5 +147,28 @@ class StartOperationEventTest extends TestCase
 
         // act
         $event->validateResult($data);
+    }
+
+    /**
+     * @dataProvider validateResultInvalidDataProvider
+     *
+     * @param stdClass $data
+     * @param string $exception
+     */
+    public function testValidateResultInvalidNotCritical(stdClass $data, string $exception)
+    {
+        // arrange
+        $operation = Operation::createOperation(
+            1,
+            0,
+            Operation::MAIN_ENGINE_FUEL_PCT,
+            0,
+            1,
+            false
+        );
+        $event = new StartOperationEvent(1555016400, $operation);
+
+        // act
+        $this->assertFalse($event->validateResult($data));
     }
 }
