@@ -8,7 +8,7 @@ use Throwable;
 
 class EventException extends BaseException
 {
-    public function __construct($message = "", $context = [], $code = 0, Throwable $previous = null)
+    public function __construct($message = "", $context = [], $code = self::REQUEST, Throwable $previous = null)
     {
         $this->setContext($context);
 

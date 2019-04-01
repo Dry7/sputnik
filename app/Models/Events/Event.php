@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Sputnik\Models\Events;
 
+use Illuminate\Support\Facades\Log;
+use Sputnik\Exceptions\BaseException;
 use Sputnik\Exceptions\EventException;
 use Sputnik\Exceptions\InvalidEvent;
 use Sputnik\Models\Operations\Operation;
+use Closure;
 
 abstract class Event
 {
@@ -162,5 +165,27 @@ abstract class Event
             'type' => $this->type,
             'operation' => (string)$this->operation,
         ]);
+    }
+
+    /**
+     * @param Closure $callback
+     *
+     * @return bool|mixed
+     *
+     * @throws BaseException
+     */
+    protected function critical(Closure $callback)
+    {
+        try {
+            return $callback();
+        } catch (BaseException $exception) {
+            if ($this->getOperation()->critical()) {
+                throw $exception;
+            } else {
+                Log::warning($exception->getMessage(), $exception->getContext());
+
+                return false;
+            }
+        }
     }
 }

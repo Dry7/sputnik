@@ -10,8 +10,7 @@ use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface as Response;
-use Sputnik\Exceptions\ExchangeException;
-use Sputnik\Exceptions\TimeoutException;
+use Sputnik\Exceptions\RequestException;
 
 class ExchangeService
 {
@@ -75,7 +74,7 @@ class ExchangeService
                 $options
             );
         } catch (ConnectException $exception) {
-            throw TimeoutException::timeout(['method' => $method, 'url' => $url, 'options' => $options]);
+            throw RequestException::timeout(['method' => $method, 'url' => $url, 'options' => $options]);
         }
     }
 
@@ -87,7 +86,7 @@ class ExchangeService
         Log::info('ExchangeService::parseResult', ['html' => $html]);
 
         if ($json === null && json_last_error() !== JSON_ERROR_NONE) {
-            throw ExchangeException::json([
+            throw RequestException::json([
                 'html' => $html,
             ]);
         }

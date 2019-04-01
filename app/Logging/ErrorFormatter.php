@@ -17,7 +17,7 @@ class ErrorFormatter implements FormatterInterface
         $exception = $record['context']['exception'] ?? null;
         $context = $exception instanceof BaseException
             ? $exception->getContext()
-            : [];
+            : $record['context'];
 
         return "\n" . json_encode([
             'type' => 'error',

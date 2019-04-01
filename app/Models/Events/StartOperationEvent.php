@@ -29,12 +29,14 @@ class StartOperationEvent extends Event
 
     public function validateResult($data): bool
     {
-        parent::validateResult($data);
+        return $this->critical(function () use ($data) {
+            parent::validateResult($data);
 
-        if ($data->{$this->getOperation()->variable()}->set !== $this->getOperation()->value()) {
-            throw EventException::failedCheck(['event' => $this, 'data' => json_encode($data)]);
-        }
+            if ($data->{$this->getOperation()->variable()}->set !== $this->getOperation()->value()) {
+                throw EventException::failedCheck(['event' => $this, 'data' => json_encode($data)]);
+            }
 
-        return true;
+            return true;
+        });
     }
 }
