@@ -35,7 +35,8 @@ class ControlPanelCommand extends Command
     {
         Log::info('Let`s go');
 
-        $fileName = $this->option('file') ?? storage_path('flight_program.json');
+        $fileName = $this->option('file')
+            ?? config('sputnik.flight_program');
 
         Log::info('Filename: ' . $fileName);
 

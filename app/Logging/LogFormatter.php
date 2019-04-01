@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sputnik\Logging;
 
+use Carbon\Carbon;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Logger;
 use Sputnik\Exceptions\BaseException;
@@ -25,7 +26,7 @@ class LogFormatter implements FormatterInterface
             : $record['context'];
 
         return "\n" . json_encode([
-                'time' => now()->toIso8601ZuluString(),
+                'time' => (new Carbon($record['datetime']->getTimestamp()))->toIso8601ZuluString(),
                 'type' => 'info',
                 'message' => $record['message'] . (!empty($context) ? ' ' . json_encode($context) : ''),
             ]);
