@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Sputnik\Services;
 
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 
 class TimeService
 {
     /** @var bool */
     private $testing;
 
-    public function __construct(bool $testing)
+    public function __construct(bool $testing = false)
     {
         $this->testing = $testing;
     }
@@ -19,10 +19,10 @@ class TimeService
     /**
      * @param int $seconds
      */
-    public function sleep(int $seconds): void
+    public function sleep(int $seconds = 1): void
     {
         if ($this->testing) {
-            Carbon::setTestNow(now()->addSeconds($seconds));
+            Date::setTestNow(now()->addSeconds($seconds));
         } else {
             sleep($seconds);
         }

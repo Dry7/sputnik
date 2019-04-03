@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Unit\Services;
 
 use Illuminate\Log\LogManager;
 use Sputnik\Services\TelemetryService;
@@ -46,6 +46,5 @@ class TelemetryServiceTest extends TestCase
 
         // act
         $this->service->send($variables);
-
     }
 }
