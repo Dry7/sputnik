@@ -8,7 +8,7 @@ use Throwable;
 
 class InvalidFlightProgram extends BaseException
 {
-    function __construct($message = "", $context = [], $code = 0, Throwable $previous = null)
+    function __construct($message = "", $context = [], $code = self::FLIGHT_PROGRAM, Throwable $previous = null)
     {
         $this->setContext($context);
 

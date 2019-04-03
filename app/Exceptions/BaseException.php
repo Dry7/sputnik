@@ -8,6 +8,7 @@ use Exception;
 
 class BaseException extends Exception
 {
+    const FLIGHT_PROGRAM = 1;
     const REQUEST = 11;
     const INVALID_EXCHANGE_RESPONSE = 12;
 

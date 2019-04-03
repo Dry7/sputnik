@@ -170,9 +170,6 @@ return [
          * Application Service Providers...
          */
         Sputnik\Providers\AppServiceProvider::class,
-        Sputnik\Providers\AuthServiceProvider::class,
-        // Sputnik\Providers\BroadcastServiceProvider::class,
-        Sputnik\Providers\EventServiceProvider::class,
         Sputnik\Providers\RouteServiceProvider::class,
 
     ],
