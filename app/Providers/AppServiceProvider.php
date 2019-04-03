@@ -6,11 +6,13 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\TransferStats;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Sputnik\Services\ExchangeService;
 use Sputnik\Services\FlightProgramService;
 use Sputnik\Services\TelemetryService;
+use Sputnik\Services\TerminateService;
 use Sputnik\Services\TimeService;
 
 class AppServiceProvider extends ServiceProvider
@@ -57,6 +59,9 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->singleton(TimeService::class, function (Application $app) {
             return new TimeService($app->runningUnitTests());
+        });
+        $this->app->singleton(TerminateService::class, function (Application $app) {
+            return new TerminateService($app[LogManager::class]);
         });
     }
 }

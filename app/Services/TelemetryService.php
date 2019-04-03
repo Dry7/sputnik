@@ -19,6 +19,7 @@ class TelemetryService
     ];
     private const CHANNEL = 'telemetry';
 
+    /** @var LogManager */
     private $logger;
 
     public function __construct(LogManager $logger)

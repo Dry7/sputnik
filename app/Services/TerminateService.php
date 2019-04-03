@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Sputnik\Services;
 
-use Illuminate\Support\Facades\Log;
+use Illuminate\Log\LogManager;
 
 class TerminateService
 {
     /** @var bool */
     private $active;
 
-    public function __construct(bool $active = true)
+    /** @var LogManager */
+    private $logger;
+
+    public function __construct(LogManager $logger, bool $active = true)
     {
+        $this->logger = $logger;
         $this->active = $active;
     }
 
@@ -21,10 +25,12 @@ class TerminateService
      */
     public function exit(int $code = 0): void
     {
-        Log::info('TerminateService::exit', ['code' => $code]);
+        $this->logger->info('TerminateService::exit', ['code' => $code]);
 
+        // @codeCoverageIgnoreStart
         if ($this->active) {
             exit($code);
         }
+        // @codeCoverageIgnoreEnd
     }
 }
