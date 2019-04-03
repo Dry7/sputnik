@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Sputnik\Services;
 
-use Illuminate\Support\Facades\Log;
+use Illuminate\Log\LogManager;
 use Sputnik\Models\Operations\Operation;
 
 class TelemetryService
@@ -17,16 +17,20 @@ class TelemetryService
         Operation::MAIN_ENGINE_FUEL_PCT,
         Operation::TEMPERATURE_INTERNAL_DEG,
     ];
+    private const CHANNEL = 'telemetry';
+
+    private $logger;
+
+    public function __construct(LogManager $logger)
+    {
+        $this->logger = $logger;
+    }
 
     public function send(array $variables)
     {
-        Log::info("Telemetry::send", $variables);
+        $this->logger->info("Telemetry::send", $variables);
 
-        fwrite(STDOUT, json_encode([
-            'type' => 'values',
-            'timestamp' => now()->timestamp,
-            'message' => $this->createMessage($variables),
-        ]) . "\n");
+        $this->logger->channel(self::CHANNEL)->info($this->createMessage($variables));
     }
 
     private function createMessage(array $variables)

@@ -91,6 +91,16 @@ return [
             'level' => 'info',
         ],
 
+        'telemetry' => [
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'formatter' => \Sputnik\Logging\TelemetryFormatter::class,
+            'with' => [
+                'stream' => 'php://stdout',
+            ],
+            'level' => 'info',
+        ],
+
         'syslog' => [
             'driver' => 'syslog',
             'level' => 'debug',
