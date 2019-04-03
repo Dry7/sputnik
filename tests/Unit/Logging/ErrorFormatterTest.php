@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Logging;
 
+use Carbon\Carbon;
 use Sputnik\Exceptions\InvalidOperation;
 use Sputnik\Logging\ErrorFormatter;
 use Tests\TestCase;
-use DateTime;
 
 class ErrorFormatterTest extends TestCase
 {
@@ -17,6 +17,9 @@ class ErrorFormatterTest extends TestCase
     public function setUp(): void
     {
         $this->formatter = new ErrorFormatter();
+
+        Carbon::setTestNow('2013-03-01T16:15:09+03:00');
+
         parent::setUp();
     }
 
@@ -26,15 +29,13 @@ class ErrorFormatterTest extends TestCase
             [
                 'record' => [
                     'message' => 'No matching handler found',
-                    'datetime' => new DateTime('2013-03-01T16:15:09+03:00'),
                     'context' => [],
                 ],
-                'expected' => "\n" . '{"type":"error","timestamp":1362143709,"message":"No matching handler found Array\n(\n)\n"}',
+                'expected' => '{"type":"error","timestamp":1362143709,"message":"No matching handler found"}' . "\n",
             ],
             [
                 'record' => [
                     'message' => 'No matching handler found',
-                    'datetime' => new DateTime('2013-03-06T16:15:09+03:00'),
                     'context' => [
                         'post' => 1,
                         'html' => '<html></html>',
@@ -43,17 +44,16 @@ class ErrorFormatterTest extends TestCase
                         ],
                     ],
                 ],
-                'expected' => "\n" . '{"type":"error","timestamp":1362575709,"message":"No matching handler found Array\n(\n    [post] => 1\n    [html] => <html><\/html>\n    [array] => Array\n        (\n            [string] => str\n        )\n\n)\n"}',
+                'expected' => '{"type":"error","timestamp":1362143709,"message":"No matching handler found {\"post\":1,\"html\":\"<html><\\\\\\/html>\",\"array\":{\"string\":\"str\"}}"}'. "\n",
             ],
             [
                 'record' => [
                     'message' => 'Invalid operation: critical',
-                    'datetime' => new DateTime('2013-03-01T16:15:09+03:00'),
                     'context' => [
                         'exception' => InvalidOperation::critical(['new'])
                     ],
                 ],
-                'expected' => "\n" . '{"type":"error","timestamp":1362143709,"message":"Invalid operation: critical Array\n(\n    [0] => new\n)\n"}',
+                'expected' => '{"type":"error","timestamp":1362143709,"message":"Invalid operation: critical [\"new\"]"}' . "\n",
             ],
         ];
     }
@@ -74,18 +74,16 @@ class ErrorFormatterTest extends TestCase
         $records = [
             [
                 'message' => 'Exception 1',
-                'datetime' => new DateTime('2013-03-01T16:15:09+03:00'),
                 'context' => [],
             ],
             [
                 'message' => 'Exception 2',
-                'datetime' => new DateTime('2013-03-01T16:15:09+03:00'),
                 'context' => [],
             ],
         ];
         $expected = [
-            "\n" . '{"type":"error","timestamp":1362143709,"message":"Exception 1 Array\n(\n)\n"}',
-            "\n" . '{"type":"error","timestamp":1362143709,"message":"Exception 2 Array\n(\n)\n"}'
+           '{"type":"error","timestamp":1362143709,"message":"Exception 1"}' . "\n",
+           '{"type":"error","timestamp":1362143709,"message":"Exception 2"}' . "\n",
         ];
 
         self::assertSame($expected, $this->formatter->formatBatch($records));

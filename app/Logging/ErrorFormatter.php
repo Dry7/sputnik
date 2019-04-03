@@ -19,11 +19,11 @@ class ErrorFormatter implements FormatterInterface
             ? $exception->getContext()
             : $record['context'];
 
-        return "\n" . json_encode([
+        return json_encode([
             'type' => 'error',
-            'timestamp' => $record['datetime']->getTimestamp(),
-            'message' => $record['message'] . ' ' . print_r($context, true),
-        ]);
+            'timestamp' => now()->timestamp,
+            'message' => $record['message'] . (!empty($context) ? ' ' . json_encode($context) : ''),
+        ]) . "\n";
     }
 
     /**

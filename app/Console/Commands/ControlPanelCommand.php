@@ -7,6 +7,7 @@ namespace Sputnik\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Sputnik\Services\FlightProgramService;
+use Tests\Feature\ControlPanelCommandTest;
 
 class ControlPanelCommand extends Command
 {
@@ -15,7 +16,9 @@ class ControlPanelCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'sputnik:control-panel {--file=}';
+    protected $signature = 'sputnik:control-panel
+                               {--file=}
+                               {--test=}';
 
     /**
      * The console command description.
@@ -33,6 +36,12 @@ class ControlPanelCommand extends Command
      */
     public function handle(FlightProgramService $flightProgramService): void
     {
+        $test = $this->option('test');
+
+        if ($test) {
+            ControlPanelCommandTest::environment($test);
+        }
+
         Log::info('Let`s go');
 
         $fileName = $this->option('file')

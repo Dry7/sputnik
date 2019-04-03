@@ -25,11 +25,11 @@ class LogFormatter implements FormatterInterface
             ? $exception->getContext()
             : $record['context'];
 
-        return "\n" . json_encode([
-                'time' => (new Carbon($record['datetime']->getTimestamp()))->toIso8601ZuluString(),
+        return json_encode([
+                'time' => now()->toIso8601ZuluString(),
                 'type' => 'info',
                 'message' => $record['message'] . (!empty($context) ? ' ' . json_encode($context) : ''),
-            ]);
+            ]) . "\n";
     }
 
     /**

@@ -22,11 +22,11 @@ class TelemetryService
     {
         Log::info("Telemetry::send", $variables);
 
-        fwrite(STDOUT, "\n" . json_encode([
+        fwrite(STDOUT, json_encode([
             'type' => 'values',
             'timestamp' => now()->timestamp,
             'message' => $this->createMessage($variables),
-        ]));
+        ]) . "\n");
     }
 
     private function createMessage(array $variables)

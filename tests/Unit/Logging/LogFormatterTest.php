@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Logging;
 
+use Carbon\Carbon;
 use Monolog\Logger;
 use Sputnik\Exceptions\InvalidOperation;
 use Sputnik\Logging\ErrorFormatter;
@@ -19,6 +20,9 @@ class LogFormatterTest extends TestCase
     public function setUp(): void
     {
         $this->formatter = new LogFormatter();
+
+        Carbon::setTestNow('2013-03-01T16:15:09+03:00');
+
         parent::setUp();
     }
 
@@ -28,16 +32,14 @@ class LogFormatterTest extends TestCase
             [
                 'record' => [
                     'message' => 'No matching handler found',
-                    'datetime' => new DateTime('2013-03-01T16:15:09+03:00'),
                     'context' => [],
                     'level' => Logger::INFO,
                 ],
-                'expected' => "\n" . '{"time":"2013-03-01T13:15:09Z","type":"info","message":"No matching handler found"}',
+                'expected' => '{"time":"2013-03-01T13:15:09Z","type":"info","message":"No matching handler found"}' . "\n",
             ],
             [
                 'record' => [
                     'message' => 'No matching handler found',
-                    'datetime' => new DateTime('2013-03-06T16:15:09+03:00'),
                     'context' => [
                         'post' => 1,
                         'html' => '<html></html>',
@@ -47,18 +49,17 @@ class LogFormatterTest extends TestCase
                     ],
                     'level' => Logger::INFO,
                 ],
-                'expected' => "\n" . '{"time":"2013-03-06T13:15:09Z","type":"info","message":"No matching handler found {\"post\":1,\"html\":\"<html><\\\\\\/html>\",\"array\":{\"string\":\"str\"}}"}',
+                'expected' => '{"time":"2013-03-01T13:15:09Z","type":"info","message":"No matching handler found {\"post\":1,\"html\":\"<html><\\\\\\/html>\",\"array\":{\"string\":\"str\"}}"}' . "\n",
             ],
             [
                 'record' => [
                     'message' => 'Invalid operation: critical',
-                    'datetime' => new DateTime('2013-03-01T16:15:09+03:00'),
                     'context' => [
                         'exception' => InvalidOperation::critical(['new'])
                     ],
                     'level' => Logger::INFO,
                 ],
-                'expected' => "\n" . '{"time":"2013-03-01T13:15:09Z","type":"info","message":"Invalid operation: critical [\"new\"]"}',
+                'expected' => '{"time":"2013-03-01T13:15:09Z","type":"info","message":"Invalid operation: critical [\"new\"]"}' . "\n",
             ],
         ];
     }
@@ -78,7 +79,6 @@ class LogFormatterTest extends TestCase
     {
         $record = [
             'message' => 'No matching handler found',
-            'datetime' => new DateTime('2013-03-01T16:15:09+03:00'),
             'context' => [],
             'level' => Logger::WARNING,
         ];
@@ -91,20 +91,18 @@ class LogFormatterTest extends TestCase
         $records = [
             [
                 'message' => 'Exception 1',
-                'datetime' => new DateTime('2013-03-01T16:15:09+03:00'),
                 'context' => [],
                 'level' => Logger::INFO,
             ],
             [
                 'message' => 'Exception 2',
-                'datetime' => new DateTime('2013-03-01T16:15:09+03:00'),
                 'context' => [],
                 'level' => Logger::INFO,
             ],
         ];
         $expected = [
-            "\n" . '{"time":"2013-03-01T13:15:09Z","type":"info","message":"Exception 1"}',
-            "\n" . '{"time":"2013-03-01T13:15:09Z","type":"info","message":"Exception 2"}',
+            '{"time":"2013-03-01T13:15:09Z","type":"info","message":"Exception 1"}' . "\n",
+            '{"time":"2013-03-01T13:15:09Z","type":"info","message":"Exception 2"}' . "\n",
         ];
 
         self::assertSame($expected, $this->formatter->formatBatch($records));

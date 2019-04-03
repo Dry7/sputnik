@@ -31,7 +31,7 @@ abstract class TestCase extends BaseTestCase
         return $result;
     }
 
-    protected function mockHttpHistory(...$queue): Collection
+    protected static function mockHttpHistory(...$queue): Collection
     {
         $history = collect();
         $stack = app(HandlerStack::class);
@@ -39,6 +39,14 @@ abstract class TestCase extends BaseTestCase
         $stack->push(Middleware::history($history));
 
         return $history;
+    }
+
+    protected static function assertLogEquals(string $expected, string $actual)
+    {
+        self::assertEquals(
+            self::clearRandomElements($expected),
+            self::clearRandomElements($actual)
+        );
     }
 
     protected static function createOperation(): Operation
@@ -55,5 +63,14 @@ abstract class TestCase extends BaseTestCase
     protected static function createEvent(): Event
     {
         return Event::createEvent(1542014400, Event::TYPE_START_OPERATION, self::createOperation());
+    }
+
+    private static function clearRandomElements(string $text, array $elements = ['total_time', 'namelookup_time'])
+    {
+        foreach ($elements as $element) {
+            $text = preg_replace('#\\\\"' . $element . '\\\\":([^,]+),#i', '\\\\"' . $element . '\\\\":[RANDOM],', $text);
+        }
+
+        return $text;
     }
 }

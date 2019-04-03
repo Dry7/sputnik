@@ -21,17 +21,22 @@ class FlightProgramService
     /** @var int */
     private $telemetryFreq;
 
+    /** @var TimeService */
+    private $timeService;
+
     /** @var array */
     private $variables;
 
     public function __construct(
         TelemetryService $telemetryService,
         ExchangeService $exchangeService,
+        TimeService $timeService,
         int $telemetryFreq
     )
     {
         $this->telemetryService = $telemetryService;
         $this->exchangeService = $exchangeService;
+        $this->timeService = $timeService;
         $this->telemetryFreq = $telemetryFreq;
     }
 
@@ -83,7 +88,7 @@ class FlightProgramService
             if ($isTelemetry) {
                 $this->telemetryService->send($this->variables);
             }
-            sleep(1);
+            $this->timeService->sleep(1);
             $time = now()->timestamp;
         } while ($time <= $maxTime);
     }
