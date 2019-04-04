@@ -34,13 +34,32 @@ class ControlPanelCommandTest extends TestCase
         $fileName = 'tests/data/flight_program/empty.json';
         $json = $this->readFixture('flight_program/empty.json');
         $this->mock(FlightProgramService::class, function ($mock) use ($json, $fileName) {
-            $mock->shouldReceive('load')->with()->with($fileName)->andReturn(FlightProgram::fromJson($json))->once()->getMock()
+            $mock
+                ->shouldReceive('load')->with()->with($fileName)->andReturn(FlightProgram::fromJson($json))->once()->getMock()
                 ->shouldReceive('run')->once();
         });
 
         // act
         $this
             ->artisan(ControlPanelCommand::class, ['--file' => $fileName])
+            ->assertExitCode(0)
+            ->run();
+    }
+
+    public function testHandleWithFileNameAndTest()
+    {
+        // arrange
+        $fileName = 'tests/data/flight_program/empty.json';
+        $json = $this->readFixture('flight_program/empty.json');
+        $this->mock(FlightProgramService::class, function ($mock) use ($json, $fileName) {
+            $mock
+                ->shouldReceive('load')->with()->with($fileName)->andReturn(FlightProgram::fromJson($json))->once()->getMock()
+                ->shouldReceive('run')->once();
+        });
+
+        // act
+        $this
+            ->artisan(ControlPanelCommand::class, ['--file' => $fileName, '--test' => 'empty_operations'])
             ->assertExitCode(0)
             ->run();
     }
