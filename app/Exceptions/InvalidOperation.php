@@ -44,9 +44,4 @@ class InvalidOperation extends BaseException
     {
         return new static('Invalid operation: timeout', $context);
     }
-
-    public static function critical($context = [])
-    {
-        return new static('Invalid operation: critical', $context);
-    }
 }

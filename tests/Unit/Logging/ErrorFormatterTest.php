@@ -48,12 +48,12 @@ class ErrorFormatterTest extends TestCase
             ],
             [
                 'record' => [
-                    'message' => 'Invalid operation: critical',
+                    'message' => 'Invalid operation: timeout',
                     'context' => [
-                        'exception' => InvalidOperation::critical(['new'])
+                        'exception' => InvalidOperation::timeout(['new'])
                     ],
                 ],
-                'expected' => '{"type":"error","timestamp":1362143709,"message":"Invalid operation: critical [\"new\"]"}' . "\n",
+                'expected' => '{"type":"error","timestamp":1362143709,"message":"Invalid operation: timeout [\"new\"]"}' . "\n",
             ],
         ];
     }

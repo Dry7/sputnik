@@ -53,13 +53,13 @@ class LogFormatterTest extends TestCase
             ],
             [
                 'record' => [
-                    'message' => 'Invalid operation: critical',
+                    'message' => 'Invalid operation: timeout',
                     'context' => [
-                        'exception' => InvalidOperation::critical(['new'])
+                        'exception' => InvalidOperation::timeout(['new'])
                     ],
                     'level' => Logger::INFO,
                 ],
-                'expected' => '{"time":"2013-03-01T13:15:09Z","type":"info","message":"Invalid operation: critical [\"new\"]"}' . "\n",
+                'expected' => '{"time":"2013-03-01T13:15:09Z","type":"info","message":"Invalid operation: timeout [\"new\"]"}' . "\n",
             ],
         ];
     }
