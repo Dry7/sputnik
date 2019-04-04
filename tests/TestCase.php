@@ -49,6 +49,14 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
+    protected static function assertEqualsArray(array $expected, array $actual)
+    {
+        self::assertEquals(
+            self::array2json($expected),
+            self::array2json($actual)
+        );
+    }
+
     protected static function createOperation(): Operation
     {
         return Operation::createOperation(
@@ -72,5 +80,10 @@ abstract class TestCase extends BaseTestCase
         }
 
         return $text;
+    }
+
+    private static function array2json(array $items)
+    {
+        return json_encode(array_map(function ($item) { return (string)$item; }, $items));
     }
 }

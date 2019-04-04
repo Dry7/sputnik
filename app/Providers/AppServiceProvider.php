@@ -54,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
                 $app[TelemetryService::class],
                 $app[ExchangeService::class],
                 $app[TimeService::class],
+                $app[LogManager::class],
                 config('sputnik.telemetry_freq')
             );
         });

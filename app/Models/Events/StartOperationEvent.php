@@ -18,7 +18,7 @@ class StartOperationEvent extends Event
     public function execute(): bool
     {
         /** @var ExchangeService $service */
-        $service = app(ExchangeService::class);
+        $service = resolve(ExchangeService::class);
 
         return $this->validateResult(
             $service->patch(

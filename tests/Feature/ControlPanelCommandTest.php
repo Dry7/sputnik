@@ -77,7 +77,7 @@ class ControlPanelCommandTest extends TestCase
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076800"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {\"events\":\"\"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {\"events\":\"\",\"isTelemetry\":true}"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get [\"orientationAzimuthAngleDeg\",\"orientationZenithAngleDeg\",\"vesselAltitudeM\",\"vesselSpeedMps\",\"mainEngineFuelPct\",\"temperatureInternalDeg\"]"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https:\/\/exchange.internal\/api\/v12\/settings\/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {\"html\":\"{\\\\\\"orientationAzimuthAngleDeg\\\\\\":{\\\\\\"set\\\\\\":5,\\\\\\"value\\\\\\":5},\\\\\\"orientationZenithAngleDeg\\\\\\":{\\\\\\"set\\\\\\":185,\\\\\\"value\\\\\\":185},\\\\\\"vesselAltitudeM\\\\\\":{\\\\\\"set\\\\\\":5,\\\\\\"value\\\\\\":5},\\\\\\"vesselSpeedMps\\\\\\":{\\\\\\"set\\\\\\":5,\\\\\\"value\\\\\\":5},\\\\\\"mainEngineFuelPct\\\\\\":{\\\\\\"set\\\\\\":5,\\\\\\"value\\\\\\":5},\\\\\\"temperatureInternalDeg\\\\\\":{\\\\\\"set\\\\\\":5,\\\\\\"value\\\\\\":5}}\"}"}
@@ -105,7 +105,7 @@ EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076800"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {\"events\":\"\"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {\"events\":\"\",\"isTelemetry\":true}"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get [\"orientationAzimuthAngleDeg\",\"orientationZenithAngleDeg\",\"vesselAltitudeM\",\"vesselSpeedMps\",\"mainEngineFuelPct\",\"temperatureInternalDeg\"]"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https:\/\/exchange.internal\/api\/v12\/settings\/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg {\"url\":\"https:\\\\\\/\\\\\\/exchange.internal\\\\\\/api\\\\\\/v12\\\\\\/settings\\\\\\/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg\",\"content_type\":null,\"http_code\":0,\"header_size\":0,\"request_size\":0,\"filetime\":-1,\"ssl_verify_result\":0,\"redirect_count\":0,\"total_time\":0.0001,\"namelookup_time\":3.3e-5,\"connect_time\":0,\"pretransfer_time\":0,\"size_upload\":0,\"size_download\":0,\"speed_download\":0,\"speed_upload\":0,\"download_content_length\":-1,\"upload_content_length\":-1,\"starttransfer_time\":0,\"redirect_time\":0,\"redirect_url\":\"\",\"primary_ip\":\"\",\"certinfo\":[],\"primary_port\":0,\"local_ip\":\"\",\"local_port\":0}"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"TerminateService::exit {\"code\":11}"}

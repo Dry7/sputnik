@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Sputnik\Services;
 
+use Illuminate\Log\LogManager;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Sputnik\Exceptions\InvalidFlightProgram;
 use Sputnik\Models\Events\Event;
 use Sputnik\Models\FlightProgram;
@@ -18,11 +18,14 @@ class FlightProgramService
     /** @var ExchangeService */
     private $exchangeService;
 
-    /** @var int */
-    private $telemetryFreq;
-
     /** @var TimeService */
     private $timeService;
+
+    /** @var LogManager */
+    private $logger;
+
+    /** @var int */
+    private $telemetryFreq;
 
     /** @var array */
     private $variables;
@@ -31,12 +34,14 @@ class FlightProgramService
         TelemetryService $telemetryService,
         ExchangeService $exchangeService,
         TimeService $timeService,
+        LogManager $logger,
         int $telemetryFreq
     )
     {
         $this->telemetryService = $telemetryService;
         $this->exchangeService = $exchangeService;
         $this->timeService = $timeService;
+        $this->logger = $logger;
         $this->telemetryFreq = $telemetryFreq;
     }
 
@@ -45,7 +50,7 @@ class FlightProgramService
      *
      * @return FlightProgram
      */
-    public function load(string $fileName)
+    public function load(string $fileName): FlightProgram
     {
         if (!file_exists($fileName)) {
             throw InvalidFlightProgram::fileNotFound(['fileName' => $fileName]);
@@ -60,7 +65,7 @@ class FlightProgramService
         return $flightProgram;
     }
 
-    public function run(FlightProgram $flightProgram)
+    public function run(FlightProgram $flightProgram): void
     {
         $schedule = $flightProgram->createSchedule();
 
@@ -70,13 +75,13 @@ class FlightProgramService
 
         $time = now()->timestamp;
 
-        Log::info("Start time: " . $startTime);
-        Log::info("End time: " . $maxTime);
+        $this->logger->info("Start time: " . $startTime);
+        $this->logger->info("End time: " . $maxTime);
 
         do {
             $isTelemetry = ($time - $startTime)%$this->telemetryFreq === 0;
 
-            Log::info('Current time: ' . $time);
+            $this->logger->info('Current time: ' . $time);
 
             $this->executeChecks(
                 collect($schedule[$time][Event::TYPE_CHECK_OPERATION_RESULTS] ?? []),
@@ -99,12 +104,7 @@ class FlightProgramService
             return;
         }
 
-        Log::info('Execute Starts: ', [
-            'events' => $events
-                ->map(function (Event $event) { return $event->getOperation()->getID(); })
-                ->implode(', '),
-            ]
-        );
+        $this->logger->info('Execute Starts: ', ['events' => $this->getEventIDs($events)]);
 
         if ($events->count() === 1) {
             $events[0]->execute();
@@ -138,12 +138,10 @@ class FlightProgramService
             return;
         }
 
-        Log::info('Execute checks: ', [
-                'events' => $events
-                    ->map(function (Event $event) { return $event->getOperation()->getID(); })
-                    ->implode(', '),
-            ]
-        );
+        $this->logger->info('Execute checks: ', [
+            'events' => $this->getEventIDs($events),
+            'isTelemetry' => $isTelemetry
+        ]);
 
         if ($events->count() === 1 && !$isTelemetry) {
             $events[0]->execute();
@@ -153,7 +151,7 @@ class FlightProgramService
         // Reduce the number of requests
         $variables = $events
             ->map(function (Event $event) { return $event->getOperation()->variable(); })
-            ->merge(TelemetryService::OPERATIONS)
+            ->merge($isTelemetry ? TelemetryService::OPERATIONS : [])
             ->unique()
             ->toArray();
 
@@ -180,5 +178,12 @@ class FlightProgramService
         }
 
         return max(array_keys($schedule)) ?? $startTime;
+    }
+
+    private function getEventIDs(Collection $events): string
+    {
+        return $events
+            ->map(function (Event $event) { return $event->getOperation()->getID(); })
+            ->implode(', ');
     }
 }

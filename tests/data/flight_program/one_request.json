@@ -1,0 +1,12 @@
+{
+  "startUp": 1555016400,
+  "operations": [
+    {
+      "id": 1,
+      "deltaT": 2,
+      "variable": "coolingSystemPowerPct",
+      "value": 30,
+      "timeout": 2
+    }
+  ]
+}
