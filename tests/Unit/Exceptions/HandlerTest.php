@@ -47,14 +47,10 @@ class HandlerTest extends TestCase
 
         $exception = InvalidEvent::operation();
 
-        $terminateService->shouldReceive('exit')->with(0)->once();
+        $terminateService->shouldReceive('exit')->with(14)->once();
         $logger->shouldReceive('error')->once();
 
-        try {
-            $this->handler->report($exception);
-        } catch (Exception $exception) {
-echo $exception->getMessage();
-        }
+        $this->handler->report($exception);
     }
 
     public function testRender()

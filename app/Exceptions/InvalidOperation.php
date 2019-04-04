@@ -8,7 +8,7 @@ use Throwable;
 
 class InvalidOperation extends BaseException
 {
-    public function __construct($message = "", $context = [], $code = 0, Throwable $previous = null)
+    public function __construct($message = "", $context = [], $code = self::OPERATION, Throwable $previous = null)
     {
         $this->setContext($context);
 

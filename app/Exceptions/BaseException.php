@@ -11,6 +11,8 @@ class BaseException extends Exception
     const FLIGHT_PROGRAM = 10;
     const REQUEST = 11;
     const INVALID_EXCHANGE_RESPONSE = 12;
+    const OPERATION = 13;
+    const EVENT = 14;
 
     protected $context = [];
 
