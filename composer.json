@@ -42,11 +42,7 @@
     "autoload": {
         "psr-4": {
             "Sputnik\\": "app/"
-        },
-        "classmap": [
-            "database/seeds",
-            "database/factories"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
