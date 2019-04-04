@@ -73,7 +73,7 @@ abstract class TestCase extends BaseTestCase
         return Event::createEvent(1542014400, Event::TYPE_START_OPERATION, self::createOperation());
     }
 
-    private static function clearRandomElements(string $text, array $elements = ['total_time', 'namelookup_time'])
+    private static function clearRandomElements(string $text, array $elements = ['total_time', 'namelookup_time', 'total_time_us'])
     {
         foreach ($elements as $element) {
             $text = preg_replace('#\\\\"' . $element . '\\\\":([^,]+),#i', '\\\\"' . $element . '\\\\":[RANDOM],', $text);

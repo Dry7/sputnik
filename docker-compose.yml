@@ -1,0 +1,22 @@
+version: "3.6"
+services:
+  php:
+    build: ./docker/php
+    volumes:
+      - .:/var/www/sputnik
+    working_dir: /var/www/sputnik
+
+  composer:
+    build: ./docker/composer
+    command: install
+    volumes:
+      - .:/app
+
+  phpunit:
+    build: ./docker/php
+    command: vendor/bin/phpunit --coverage-html=storage/coverage
+    working_dir: /var/www/sputnik
+    volumes:
+      - .:/var/www/sputnik
+    links:
+      - composer
