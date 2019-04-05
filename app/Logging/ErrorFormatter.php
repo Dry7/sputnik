@@ -6,6 +6,7 @@ namespace Sputnik\Logging;
 
 use Monolog\Formatter\FormatterInterface;
 use Sputnik\Exceptions\BaseException;
+use Sputnik\Helpers\Utils;
 
 class ErrorFormatter implements FormatterInterface
 {
@@ -19,10 +20,10 @@ class ErrorFormatter implements FormatterInterface
             ? $exception->getContext()
             : $record['context'];
 
-        return json_encode([
+        return Utils::json([
             'type' => 'error',
             'timestamp' => now()->timestamp,
-            'message' => $record['message'] . (!empty($context) ? ' ' . json_encode($context) : ''),
+            'message' => $record['message'] . (!empty($context) ? ' ' . Utils::json($context) : ''),
         ]) . "\n";
     }
 

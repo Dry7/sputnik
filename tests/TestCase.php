@@ -8,6 +8,7 @@ use GuzzleHttp\Middleware;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Collection;
 use Iterator;
+use Sputnik\Helpers\Utils;
 use Sputnik\Models\Events\Event;
 use Sputnik\Models\Operations\Operation;
 
@@ -44,8 +45,8 @@ abstract class TestCase extends BaseTestCase
     protected static function assertLogEquals(string $expected, string $actual)
     {
         self::assertEquals(
-            self::clearRandomElements($expected),
-            self::clearRandomElements($actual)
+            self::clearRandomElements(self::clearSlashes($expected)),
+            self::clearRandomElements(self::clearSlashes($actual))
         );
     }
 
@@ -68,22 +69,28 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    protected static function createEvent(): Event
+    protected static function createEvent(string $type = Event::TYPE_START_OPERATION): Event
     {
-        return Event::createEvent(1542014400, Event::TYPE_START_OPERATION, self::createOperation());
+        return Event::createEvent(1542014400, $type, self::createOperation());
     }
 
     private static function clearRandomElements(string $text, array $elements = ['total_time', 'namelookup_time', 'total_time_us'])
     {
         foreach ($elements as $element) {
-            $text = preg_replace('#\\\\"' . $element . '\\\\":([^,]+),#i', '\\\\"' . $element . '\\\\":[RANDOM],', $text);
+            $text = preg_replace('#"' . $element . '":([^,}]+)(,|})#i', '"' . $element . '":[RANDOM]$2', $text);
         }
 
         return $text;
     }
 
+    private static function clearSlashes(string $html)
+    {
+        $html = preg_replace('~\\\\{2,}~', '\\', $html);
+        return preg_replace('~\\\\"~', '"', $html);
+    }
+
     private static function array2json(array $items)
     {
-        return json_encode(array_map(function ($item) { return (string)$item; }, $items));
+        return Utils::json(array_map(function ($item) { return (string)$item; }, $items));
     }
 }

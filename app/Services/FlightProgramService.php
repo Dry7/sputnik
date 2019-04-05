@@ -6,7 +6,9 @@ namespace Sputnik\Services;
 
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Collection;
+use Sputnik\Exceptions\InvalidCheck;
 use Sputnik\Exceptions\InvalidFlightProgram;
+use Sputnik\Exceptions\RequestException;
 use Sputnik\Models\Events\Event;
 use Sputnik\Models\FlightProgram;
 
@@ -155,7 +157,14 @@ class FlightProgramService
             ->unique()
             ->toArray();
 
-        $data = $this->exchangeService->get($variables);
+        try {
+            $data = $this->exchangeService->get($variables);
+        } catch (RequestException $exception) {
+            throw InvalidCheck::exchangeRequest([
+                'message' => $exception->getMessage(),
+                'context' => $exception->getContext()
+            ]);
+        }
 
         $events->each(function (Event $event) use ($data) {
             $event->validateResult($data);

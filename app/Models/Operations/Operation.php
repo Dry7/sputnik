@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sputnik\Models\Operations;
 
 use Sputnik\Exceptions\InvalidOperation;
-use Sputnik\Helpers\Validation;
+use Sputnik\Helpers\Utils;
 use stdClass;
 
 abstract class Operation
@@ -178,7 +178,7 @@ abstract class Operation
 
     public function __toString()
     {
-        return json_encode([
+        return Utils::json([
             'class' => static::class,
             'id' => $this->id,
             'deltaT' => $this->deltaT,
@@ -205,7 +205,7 @@ abstract class Operation
      */
     public function setId(int $value): self
     {
-        if ($value === 0 || !Validation::isUInt32($value)) {
+        if ($value === 0 || !Utils::isUInt32($value)) {
             throw InvalidOperation::id(['operation' => $this, 'value' => $value]);
         }
 
@@ -221,7 +221,7 @@ abstract class Operation
      */
     public function setDeltaT(int $value): self
     {
-        if (!Validation::isUInt32($value)) {
+        if (!Utils::isUInt32($value)) {
             throw InvalidOperation::deltaT(['operation' => $this, 'value' => $value]);
         }
 
@@ -253,7 +253,7 @@ abstract class Operation
      */
     public function setValue(int $value): self
     {
-        if (!Validation::isUInt32($value)) {
+        if (!Utils::isUInt32($value)) {
             throw InvalidOperation::value(['operation' => $this, 'value' => $value]);
         }
 
@@ -269,7 +269,7 @@ abstract class Operation
      */
     public function setTimeout(int $value): self
     {
-        if ($value === 0 || !Validation::isUInt32($value)) {
+        if ($value === 0 || !Utils::isUInt32($value)) {
             throw InvalidOperation::timeout(['operation' => (string)$this, 'value' => $value]);
         }
 

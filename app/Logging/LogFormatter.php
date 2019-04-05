@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Logger;
 use Sputnik\Exceptions\BaseException;
+use Sputnik\Helpers\Utils;
 
 class LogFormatter implements FormatterInterface
 {
@@ -25,10 +26,10 @@ class LogFormatter implements FormatterInterface
             ? $exception->getContext()
             : $record['context'];
 
-        return json_encode([
+        return Utils::json([
                 'time' => now()->toIso8601ZuluString(),
                 'type' => 'info',
-                'message' => $record['message'] . (!empty($context) ? ' ' . json_encode($context) : ''),
+                'message' => $record['message'] . (!empty($context) ? ' ' . Utils::json($context) : ''),
             ]) . "\n";
     }
 

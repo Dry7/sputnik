@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Models\Events;
 
 use Mockery\MockInterface;
+use Sputnik\Exceptions\RequestException;
 use Sputnik\Models\Events\CheckOperationResultsEvent;
+use Sputnik\Models\Events\Event;
 use Sputnik\Models\Events\StartOperationEvent;
 use Sputnik\Models\Operations\Operation;
 use Sputnik\Services\ExchangeService;
@@ -14,7 +16,7 @@ use stdClass;
 
 class CheckOperationResultsEventTest extends TestCase
 {
-    public function testExecute()
+    public function t2estExecute()
     {
         // arrange
         $operation = self::createOperation();
@@ -43,6 +45,25 @@ class CheckOperationResultsEventTest extends TestCase
 
         // assert
         $stub->shouldHaveReceived('validateResult')->with($data)->once();
+    }
+
+    /**
+     * @expectedException Sputnik\Exceptions\InvalidCheck
+     */
+    public function testExecuteException()
+    {
+        // arrange
+        $event = self::createEvent(Event::TYPE_CHECK_OPERATION_RESULTS);
+
+        $this->mock(ExchangeService::class, function ($mock) use ($event) {
+            $mock->shouldReceive('get')
+                ->with([$event->getOperation()->variable()])
+                ->andThrow(RequestException::timeout())
+                ->once();
+        });
+
+        // act
+        $event->execute();
     }
 
     public static function validateResultDataProvider()
@@ -90,37 +111,43 @@ class CheckOperationResultsEventTest extends TestCase
         return [
             'null' => [
                 (object)[],
-                'Sputnik\Exceptions\EventException',
+                'Sputnik\Exceptions\InvalidCheck',
             ],
             'plain value' => [
                 (object)[
                     Operation::MAIN_ENGINE_FUEL_PCT => 5,
                 ],
-                'Sputnik\Exceptions\EventException',
+                'Sputnik\Exceptions\InvalidCheck',
             ],
             'array value' => [
                 (object)[
                     Operation::MAIN_ENGINE_FUEL_PCT => ['set' => 5, 'value' => 5],
                 ],
-                'Sputnik\Exceptions\EventException',
+                'Sputnik\Exceptions\InvalidCheck',
             ],
             'wrong type' => [
                 (object)[
                     Operation::ORIENTATION_AZIMUTH_ANGLE_DEG => (object)['set' => 5, 'value' => 5],
                 ],
-                'Sputnik\Exceptions\EventException',
+                'Sputnik\Exceptions\InvalidCheck',
             ],
             'wrong set' => [
                 (object)[
                     Operation::MAIN_ENGINE_FUEL_PCT => (object)['set' => 5, 'value' => 5],
                 ],
-                'Sputnik\Exceptions\EventException',
+                'Sputnik\Exceptions\InvalidCheck',
             ],
             'incorrect value' => [
                 (object)[
                     Operation::MAIN_ENGINE_FUEL_PCT => (object)['set' => 0, 'value' => 5],
                 ],
-                'Sputnik\Exceptions\EventException',
+                'Sputnik\Exceptions\InvalidCheck',
+            ],
+            'wrong data type' => [
+                (object)[
+                    Operation::MAIN_ENGINE_FUEL_PCT => (object)['set' => 0, 'value' => 'test'],
+                ],
+                'Sputnik\Exceptions\InvalidCheck',
             ],
         ];
     }

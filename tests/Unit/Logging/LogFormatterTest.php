@@ -10,7 +10,6 @@ use Sputnik\Exceptions\InvalidOperation;
 use Sputnik\Logging\ErrorFormatter;
 use Sputnik\Logging\LogFormatter;
 use Tests\TestCase;
-use DateTime;
 
 class LogFormatterTest extends TestCase
 {
@@ -49,7 +48,7 @@ class LogFormatterTest extends TestCase
                     ],
                     'level' => Logger::INFO,
                 ],
-                'expected' => '{"time":"2013-03-01T13:15:09Z","type":"info","message":"No matching handler found {\"post\":1,\"html\":\"<html><\\\\\\/html>\",\"array\":{\"string\":\"str\"}}"}' . "\n",
+                'expected' => '{"time":"2013-03-01T13:15:09Z","type":"info","message":"No matching handler found {"post":1,"html":"<html></html>","array":{"string":"str"}}"}' . "\n",
             ],
             [
                 'record' => [
@@ -59,7 +58,7 @@ class LogFormatterTest extends TestCase
                     ],
                     'level' => Logger::INFO,
                 ],
-                'expected' => '{"time":"2013-03-01T13:15:09Z","type":"info","message":"Invalid operation: timeout [\"new\"]"}' . "\n",
+                'expected' => '{"time":"2013-03-01T13:15:09Z","type":"info","message":"Invalid operation: timeout ["new"]"}' . "\n",
             ],
         ];
     }
@@ -72,7 +71,7 @@ class LogFormatterTest extends TestCase
      */
     public function testFormat(array $record, string $expected)
     {
-        $this->assertSame($expected, $this->formatter->format($record));
+        $this->assertLogEquals($expected, $this->formatter->format($record));
     }
 
     public function testFormatWarning()

@@ -5,6 +5,10 @@ services:
     volumes:
       - .:/var/www/sputnik
     working_dir: /var/www/sputnik
+    environment:
+      - FLIGHT_PROGRAM=tests/data/flight_program/default.json
+      - EXCHANGE_URI=http://127.0.0.1:8000
+      - TELEMETRY_FREQ=20
 
   composer:
     build: ./docker/composer

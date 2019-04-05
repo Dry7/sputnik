@@ -44,7 +44,7 @@ class ErrorFormatterTest extends TestCase
                         ],
                     ],
                 ],
-                'expected' => '{"type":"error","timestamp":1362143709,"message":"No matching handler found {\"post\":1,\"html\":\"<html><\\\\\\/html>\",\"array\":{\"string\":\"str\"}}"}'. "\n",
+                'expected' => '{"type":"error","timestamp":1362143709,"message":"No matching handler found {"post":1,"html":"<html></html>","array":{"string":"str"}}"}'. "\n",
             ],
             [
                 'record' => [
@@ -66,7 +66,7 @@ class ErrorFormatterTest extends TestCase
      */
     public function testFormat(array $record, string $expected)
     {
-        $this->assertSame($expected, $this->formatter->format($record));
+        $this->assertLogEquals($expected, $this->formatter->format($record));
     }
 
     public function testFormatBatch()

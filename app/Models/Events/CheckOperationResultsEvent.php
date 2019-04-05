@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Sputnik\Models\Events;
 
-use Sputnik\Exceptions\EventException;
+use Sputnik\Exceptions\InvalidCheck;
+use Sputnik\Exceptions\RequestException;
+use Sputnik\Helpers\Utils;
 use Sputnik\Models\Operations\Operation;
 use Sputnik\Services\ExchangeService;
 
@@ -17,14 +19,22 @@ class CheckOperationResultsEvent extends Event
 
     public function execute()
     {
-        /** @var ExchangeService $service */
-        $service = app(ExchangeService::class);
+        try {
+            /** @var ExchangeService $service */
+            $service = app(ExchangeService::class);
 
-        return $this->validateResult(
-            $service->get(
-                [$this->getOperation()->variable()]
-            )
-        );
+            return $this->validateResult(
+                $service->get(
+                    [$this->getOperation()->variable()]
+                )
+            );
+        } catch (RequestException $exception) {
+            throw InvalidCheck::exchangeRequest([
+                'event' => (string)$this,
+                'message' => $exception->getMessage(),
+                'context' => $exception->getContext()
+            ]);
+        }
     }
 
     public function validateResult($data): bool
@@ -33,7 +43,7 @@ class CheckOperationResultsEvent extends Event
             parent::validateResult($data);
 
             if ($data->{$this->getOperation()->variable()}->value !== $this->getOperation()->value()) {
-                throw EventException::failedCheck(['event' => $this, 'data' => json_encode($data)]);
+                throw InvalidCheck::value(['event' => (string)$this, 'data' => Utils::json($data)]);
             }
 
             return true;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sputnik\Logging;
 
 use Monolog\Formatter\FormatterInterface;
+use Sputnik\Helpers\Utils;
 
 class TelemetryFormatter implements FormatterInterface
 {
@@ -13,7 +14,7 @@ class TelemetryFormatter implements FormatterInterface
      */
     public function format(array $record)
     {
-        return json_encode([
+        return Utils::json([
                 'type' => 'values',
                 'timestamp' => now()->timestamp,
                 'message' => $record['message'],

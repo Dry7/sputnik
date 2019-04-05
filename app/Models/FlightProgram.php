@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sputnik\Models;
 
 use Sputnik\Exceptions\InvalidFlightProgram;
-use Sputnik\Helpers\Validation;
+use Sputnik\Helpers\Utils;
 use Iterator;
 use Sputnik\Models\Events\Event;
 use Sputnik\Models\Operations\Operation;
@@ -82,12 +82,12 @@ class FlightProgram
 
     public function setStartUp(int $value): self
     {
-        if (!Validation::isUInt32($value)) {
+        if (!Utils::isUInt32($value)) {
             throw InvalidFlightProgram::startUp(['operation' => $this, 'value' => $value]);
         }
 
         $this->startUp = $value;
-//        $this->startUp = now()->timestamp + 10;
+//        $this->startUp = now()->timestamp;
 
         return $this;
     }

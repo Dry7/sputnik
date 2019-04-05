@@ -1,0 +1,21 @@
+{
+  "startUp": 1554076800,
+  "operations": [
+    {
+      "id": 1,
+      "deltaT": 2,
+      "variable": "coolingSystemPowerPct",
+      "value": 30,
+      "timeout": 2,
+      "critical": false
+    },
+    {
+      "id": 2,
+      "deltaT": 5,
+      "variable": "radioPowerDbm",
+      "value": 50,
+      "timeout": 1,
+      "critical": false
+    }
+  ]
+}

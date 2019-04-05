@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sputnik\Models\Events;
 
 use Sputnik\Exceptions\EventException;
+use Sputnik\Helpers\Utils;
 use Sputnik\Models\Operations\Operation;
 use Sputnik\Services\ExchangeService;
 
@@ -33,7 +34,7 @@ class StartOperationEvent extends Event
             parent::validateResult($data);
 
             if ($data->{$this->getOperation()->variable()}->set !== $this->getOperation()->value()) {
-                throw EventException::failedCheck(['event' => $this, 'data' => json_encode($data)]);
+                throw EventException::failedCheck(['event' => (string)$this, 'data' => Utils::json($data)]);
             }
 
             return true;

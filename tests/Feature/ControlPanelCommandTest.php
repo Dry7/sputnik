@@ -26,6 +26,80 @@ class ControlPanelCommandTest extends TestCase
                 self::TELEMETRY_RESPONSE
             ],
         ],
+        'invalid_patch_response' => [
+            'date' => '2019-04-01 00:00:00',
+            'requests' => [
+                self::TELEMETRY_RESPONSE,
+                'not json'
+            ],
+        ],
+        'invalid_wrong_response' => [
+            'date' => '2019-04-01 00:00:00',
+            'requests' => [
+                self::TELEMETRY_RESPONSE,
+                '{"coolingSystemPowerPct":{"set":20,"value":20}}'
+            ],
+        ],
+        'wrong_patch_not_critical' => [
+            'date' => '2019-04-01 00:00:00',
+            'requests' => [
+                self::TELEMETRY_RESPONSE,
+                '{"coolingSystemPowerPct":{"set":20,"value":20}}',
+                '{"coolingSystemPowerPct":{"set":20,"value":30}}',
+                '{"radioPowerDbm":{"set":50,"value":50}}',
+                '{"radioPowerDbm":{"set":50,"value":50}}',
+            ],
+        ],
+        'invalid_wrong_type_response' => [
+            'date' => '2019-04-01 00:00:00',
+            'requests' => [
+                self::TELEMETRY_RESPONSE,
+                '{"coolingSystemPowerPct":{"set":30,"value":"test"}}'
+            ],
+        ],
+        'failed_check_one_request' => [
+            'date' => '2019-04-01 00:00:00',
+            'requests' => [
+                self::TELEMETRY_RESPONSE,
+                '{"coolingSystemPowerPct":{"set":30,"value":30}}',
+                '{"coolingSystemPowerPct":{"set":30,"value":20}}',
+            ],
+        ],
+        'failed_check_one_request_type' => [
+            'date' => '2019-04-01 00:00:00',
+            'requests' => [
+                self::TELEMETRY_RESPONSE,
+                '{"coolingSystemPowerPct":{"set":30,"value":30}}',
+                '{"coolingSystemPowerPct":{"set":30,"value":"test"}}',
+            ],
+        ],
+        'failed_check_one_request_invalid_json' => [
+            'date' => '2019-04-01 00:00:00',
+            'requests' => [
+                self::TELEMETRY_RESPONSE,
+                '{"coolingSystemPowerPct":{"set":30,"value":30}}',
+                'sdf',
+            ],
+        ],
+        'two_request_in_one_second' => [
+            'date' => '2019-04-11 21:00:00',
+            'requests' => [
+                self::TELEMETRY_RESPONSE,
+                '{"coolingSystemPowerPct":{"set":30,"value":30},"radioPowerDbm":{"set":50,"value":50}}',
+                '{"coolingSystemPowerPct":{"set":30,"value":30},"radioPowerDbm":{"set":50,"value":50}}',
+            ],
+        ],
+        'telemetry_every_second' => [
+            'date' => '2019-04-01 00:00:00',
+            'requests' => [
+                self::TELEMETRY_RESPONSE,
+                self::TELEMETRY_RESPONSE,
+                self::TELEMETRY_RESPONSE,
+                '{"coolingSystemPowerPct":{"set":30,"value":30}}',
+                self::TELEMETRY_RESPONSE,
+                '{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5},"coolingSystemPowerPct":{"set":30,"value":30}}',
+            ],
+        ],
     ];
 
     public static function environment(string $test)
@@ -50,16 +124,18 @@ class ControlPanelCommandTest extends TestCase
         ]);
         $process->run();
 
-        self::assertEquals(
-            '{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}' . "\n"
-                   . '{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: \/tmp\/not_existing_file.json"}' . "\n"
-                   . '{"time":"2019-04-01T00:00:00Z","type":"info","message":"TerminateService::exit {\"code\":10}"}' . "\n",
-            $process->getOutput()
-        );
-        self::assertEquals(
-            '{"type":"error","timestamp":1554076800,"message":"Invalid flight program: file not found {\"fileName\":\"\\\\\\/tmp\\\\\\/not_existing_file.json\"}"}' . "\n",
-            $process->getErrorOutput()
-        );
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: /tmp/not_existing_file.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"TerminateService::exit {"code":10}"}
+
+EOF
+            , $process->getOutput());
+        self::assertLogEquals(<<<EOF
+{"type":"error","timestamp":1554076800,"message":"Invalid flight program: file not found {"fileName":"/tmp/not_existing_file.json"}"}
+
+EOF
+            , $process->getErrorOutput());
         self::assertEquals(10, $process->getExitCode());
     }
 
@@ -73,15 +149,15 @@ class ControlPanelCommandTest extends TestCase
 
         self::assertLogEquals(<<<EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests\/data\/flight_program\/empty.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/empty.json"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076800"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {\"events\":\"\",\"isTelemetry\":true}"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get [\"orientationAzimuthAngleDeg\",\"orientationZenithAngleDeg\",\"vesselAltitudeM\",\"vesselSpeedMps\",\"mainEngineFuelPct\",\"temperatureInternalDeg\"]"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https:\/\/exchange.internal\/api\/v12\/settings\/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {\"html\":\"{\\\\\\"orientationAzimuthAngleDeg\\\\\\":{\\\\\\"set\\\\\\":5,\\\\\\"value\\\\\\":5},\\\\\\"orientationZenithAngleDeg\\\\\\":{\\\\\\"set\\\\\\":185,\\\\\\"value\\\\\\":185},\\\\\\"vesselAltitudeM\\\\\\":{\\\\\\"set\\\\\\":5,\\\\\\"value\\\\\\":5},\\\\\\"vesselSpeedMps\\\\\\":{\\\\\\"set\\\\\\":5,\\\\\\"value\\\\\\":5},\\\\\\"mainEngineFuelPct\\\\\\":{\\\\\\"set\\\\\\":5,\\\\\\"value\\\\\\":5},\\\\\\"temperatureInternalDeg\\\\\\":{\\\\\\"set\\\\\\":5,\\\\\\"value\\\\\\":5}}\"}"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {\"orientationAzimuthAngleDeg\":5,\"orientationZenithAngleDeg\":185,\"vesselAltitudeM\":5,\"vesselSpeedMps\":5,\"mainEngineFuelPct\":5,\"temperatureInternalDeg\":5}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
 {"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
 
 EOF
@@ -101,25 +177,470 @@ EOF
 
         self::assertLogEquals(<<<EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests\/data\/flight_program\/empty.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/empty.json"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076800"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {\"events\":\"\",\"isTelemetry\":true}"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get [\"orientationAzimuthAngleDeg\",\"orientationZenithAngleDeg\",\"vesselAltitudeM\",\"vesselSpeedMps\",\"mainEngineFuelPct\",\"temperatureInternalDeg\"]"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https:\/\/exchange.internal\/api\/v12\/settings\/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg {\"url\":\"https:\\\\\\/\\\\\\/exchange.internal\\\\\\/api\\\\\\/v12\\\\\\/settings\\\\\\/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg\",\"content_type\":null,\"http_code\":0,\"header_size\":0,\"request_size\":0,\"filetime\":-1,\"ssl_verify_result\":0,\"redirect_count\":0,\"total_time\":0.0001,\"namelookup_time\":3.3e-5,\"connect_time\":0,\"pretransfer_time\":0,\"size_upload\":0,\"size_download\":0,\"speed_download\":0,\"speed_upload\":0,\"download_content_length\":-1,\"upload_content_length\":-1,\"starttransfer_time\":0,\"redirect_time\":0,\"redirect_url\":\"\",\"primary_ip\":\"\",\"certinfo\":[],\"primary_port\":0,\"local_ip\":\"\",\"local_port\":0,\"http_version\":0,\"protocol\":0,\"ssl_verifyresult\":0,\"scheme\":\"\",\"appconnect_time_us\":0,\"connect_time_us\":0,\"namelookup_time_us\":0,\"pretransfer_time_us\":0,\"redirect_time_us\":0,\"starttransfer_time_us\":0,\"total_time_us\":99578}"}
-{"time":"2019-04-01T00:00:00Z","type":"info","message":"TerminateService::exit {\"code\":11}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg {"url":"https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg","content_type":null,"http_code":0,"header_size":0,"request_size":0,"filetime":-1,"ssl_verify_result":0,"redirect_count":0,"total_time":0.0001,"namelookup_time":3.3e-5,"connect_time":0,"pretransfer_time":0,"size_upload":0,"size_download":0,"speed_download":0,"speed_upload":0,"download_content_length":-1,"upload_content_length":-1,"starttransfer_time":0,"redirect_time":0,"redirect_url":"","primary_ip":"","certinfo":[],"primary_port":0,"local_ip":"","local_port":0,"http_version":0,"protocol":0,"ssl_verifyresult":0,"scheme":"","appconnect_time_us":0,"connect_time_us":0,"namelookup_time_us":0,"pretransfer_time_us":0,"redirect_time_us":0,"starttransfer_time_us":0,"total_time_us":99578}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"TerminateService::exit {"code":12}"}
 
 EOF
             , $process->getOutput()
         );
         self::assertLogEquals(<<<EOF
-{"type":"error","timestamp":1554076800,"message":"Request timeout {\"method\":\"GET\",\"url\":\"https:\\\\\\/\\\\\\/exchange.internal\\\\\\/api\\\\\\/v12\\\\\\/settings\\\\\\/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg\",\"options\":{\"timeout\":0.1}}"}
+{"type":"error","timestamp":1554076800,"message":"Invalid exchangeService {"message":"Request timeout","context":{"method":"GET","url":"https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg","options":{"timeout":0.1}}}"}
 
 EOF
             , $process->getErrorOutput()
         );
+        self::assertEquals(12, $process->getExitCode());
+    }
+
+    public function testInvalidPatchResponse()
+    {
+        $process = $this->createProcess('invalid_patch_response', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076804"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Current time: 1554076801"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Current time: 1554076802"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Execute Starts:  {"events":"1"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::patch {"coolingSystemPowerPct":30}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::parseResult {"html":"not json"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"TerminateService::exit {"code":11}"}
+
+EOF
+            , $process->getOutput()
+        );
+        self::assertLogEquals(<<<EOF
+{"type":"error","timestamp":1554076802,"message":"ExchangeService: invalid json {"html":"not json"}"}
+
+EOF
+            , $process->getErrorOutput());
         self::assertEquals(11, $process->getExitCode());
+    }
+
+    public function testWrongPatchResponse()
+    {
+        $process = $this->createProcess('invalid_wrong_response', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076804"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Current time: 1554076801"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Current time: 1554076802"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Execute Starts:  {"events":"1"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::patch {"coolingSystemPowerPct":30}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":20,"value":20}}"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"TerminateService::exit {"code":11}"}
+
+EOF
+            , $process->getOutput()
+        );
+        self::assertLogEquals(<<<EOF
+{"type":"error","timestamp":1554076802,"message":"Event: failed check {"event":"{"class":"Sputnik\Models\Events\StartOperationEvent","type":"start_operation","operation":"{"class":"Sputnik\Models\Operations\CoolingSystemPowerPctOperation","id":1,"deltaT":2,"variable":"coolingSystemPowerPct","value":30,"timeout":2,"critical":true}"}","data":"{"coolingSystemPowerPct":{"set":20,"value":20}}"}"}
+
+EOF
+            , $process->getErrorOutput());
+        self::assertEquals(11, $process->getExitCode());
+    }
+
+    public function testWrongPatchResponseNotCritical()
+    {
+        $process = $this->createProcess('wrong_patch_not_critical', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/wrong_patch_not_critical.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/wrong_patch_not_critical.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076806"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Current time: 1554076801"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Current time: 1554076802"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Execute Starts:  {"events":"1"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::patch {"coolingSystemPowerPct":30}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":20,"value":20}}"}"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"Current time: 1554076803"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Current time: 1554076804"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Execute checks:  {"events":"1","isTelemetry":false}"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::get ["coolingSystemPowerPct"]"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/coolingSystemPowerPct"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":20,"value":30}}"}"}
+{"time":"2019-04-01T00:00:05Z","type":"info","message":"Current time: 1554076805"}
+{"time":"2019-04-01T00:00:05Z","type":"info","message":"Execute Starts:  {"events":"2"}"}
+{"time":"2019-04-01T00:00:05Z","type":"info","message":"ExchangeService::patch {"radioPowerDbm":50}"}
+{"time":"2019-04-01T00:00:05Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-01T00:00:05Z","type":"info","message":"ExchangeService::parseResult {"html":"{"radioPowerDbm":{"set":50,"value":50}}"}"}
+{"time":"2019-04-01T00:00:06Z","type":"info","message":"Current time: 1554076806"}
+{"time":"2019-04-01T00:00:06Z","type":"info","message":"Execute checks:  {"events":"2","isTelemetry":false}"}
+{"time":"2019-04-01T00:00:06Z","type":"info","message":"ExchangeService::get ["radioPowerDbm"]"}
+{"time":"2019-04-01T00:00:06Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/radioPowerDbm"}
+{"time":"2019-04-01T00:00:06Z","type":"info","message":"ExchangeService::parseResult {"html":"{"radioPowerDbm":{"set":50,"value":50}}"}"}
+
+EOF
+            , $process->getOutput()
+        );
+
+        self::assertLogEquals(<<<EOF
+{"type":"error","timestamp":1554076802,"message":"Event: failed check {"event":"{"class":"Sputnik\Models\Events\StartOperationEvent","type":"start_operation","operation":"{"class":"Sputnik\Models\Operations\CoolingSystemPowerPctOperation","id":1,"deltaT":2,"variable":"coolingSystemPowerPct","value":30,"timeout":2,"critical":false}"}","data":"{"coolingSystemPowerPct":{"set":20,"value":20}}"}"}
+
+EOF
+            , $process->getErrorOutput());
+        self::assertEquals(0, $process->getExitCode());
+    }
+
+    public function testWrongTypePatchResponse()
+    {
+        $process = $this->createProcess('invalid_wrong_type_response', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076804"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Current time: 1554076801"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Current time: 1554076802"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Execute Starts:  {"events":"1"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::patch {"coolingSystemPowerPct":30}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":"test"}}"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"TerminateService::exit {"code":11}"}
+
+EOF
+            , $process->getOutput()
+        );
+        self::assertLogEquals(<<<EOF
+{"type":"error","timestamp":1554076802,"message":"Event: failed check {"type":"start_operation","event":"{"class":"Sputnik\Models\Events\StartOperationEvent","type":"start_operation","operation":"{"class":"Sputnik\Models\Operations\CoolingSystemPowerPctOperation","id":1,"deltaT":2,"variable":"coolingSystemPowerPct","value":30,"timeout":2,"critical":true}"}","data":"{"coolingSystemPowerPct":{"set":30,"value":"test"}}"}"}
+
+EOF
+            , $process->getErrorOutput());
+        self::assertEquals(11, $process->getExitCode());
+    }
+
+    public function testFailedCheckOnOneRequest()
+    {
+        $process = $this->createProcess('failed_check_one_request', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076804"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Current time: 1554076801"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Current time: 1554076802"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Execute Starts:  {"events":"1"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::patch {"coolingSystemPowerPct":30}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":30}}"}"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"Current time: 1554076803"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Current time: 1554076804"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Execute checks:  {"events":"1","isTelemetry":false}"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::get ["coolingSystemPowerPct"]"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/coolingSystemPowerPct"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":20}}"}"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"TerminateService::exit {"code":12}"}
+
+EOF
+            , $process->getOutput());
+        self::assertLogEquals(<<<EOF
+{"type":"error","timestamp":1554076804,"message":"Invalid check: value {"event":"{"class":"Sputnik\Models\Events\CheckOperationResultsEvent","type":"check_operation_results","operation":"{"class":"Sputnik\Models\Operations\CoolingSystemPowerPctOperation","id":1,"deltaT":2,"variable":"coolingSystemPowerPct","value":30,"timeout":2,"critical":true}"}","data":"{"coolingSystemPowerPct":{"set":30,"value":20}}"}"}
+
+EOF
+            , $process->getErrorOutput());
+        self::assertEquals(12, $process->getExitCode());
+    }
+
+    public function testFailedCheckOnOneRequestNotCritical()
+    {
+        $process = $this->createProcess('failed_check_one_request', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request_not_critical.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request_not_critical.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076804"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Current time: 1554076801"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Current time: 1554076802"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Execute Starts:  {"events":"1"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::patch {"coolingSystemPowerPct":30}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":30}}"}"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"Current time: 1554076803"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Current time: 1554076804"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Execute checks:  {"events":"1","isTelemetry":false}"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::get ["coolingSystemPowerPct"]"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/coolingSystemPowerPct"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":20}}"}"}
+
+EOF
+            , $process->getOutput());
+        self::assertLogEquals(<<<EOF
+{"type":"error","timestamp":1554076804,"message":"Invalid check: value {"event":"{"class":"Sputnik\Models\Events\CheckOperationResultsEvent","type":"check_operation_results","operation":"{"class":"Sputnik\Models\Operations\CoolingSystemPowerPctOperation","id":1,"deltaT":2,"variable":"coolingSystemPowerPct","value":30,"timeout":2,"critical":false}"}","data":"{"coolingSystemPowerPct":{"set":30,"value":20}}"}"}
+
+EOF
+            , $process->getErrorOutput());
+        self::assertEquals(0, $process->getExitCode());
+    }
+
+    public function testFailedCheckOnOneRequestType()
+    {
+        $process = $this->createProcess('failed_check_one_request_type', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076804"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Current time: 1554076801"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Current time: 1554076802"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Execute Starts:  {"events":"1"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::patch {"coolingSystemPowerPct":30}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":30}}"}"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"Current time: 1554076803"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Current time: 1554076804"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Execute checks:  {"events":"1","isTelemetry":false}"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::get ["coolingSystemPowerPct"]"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/coolingSystemPowerPct"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":"test"}}"}"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"TerminateService::exit {"code":12}"}
+
+EOF
+            , $process->getOutput());
+        self::assertLogEquals(<<<EOF
+{"type":"error","timestamp":1554076804,"message":"Invalid check: value {"type":"check_operation_results","event":"{"class":"Sputnik\Models\Events\CheckOperationResultsEvent","type":"check_operation_results","operation":"{"class":"Sputnik\Models\Operations\CoolingSystemPowerPctOperation","id":1,"deltaT":2,"variable":"coolingSystemPowerPct","value":30,"timeout":2,"critical":true}"}","data":"{"coolingSystemPowerPct":{"set":30,"value":"test"}}"}"}
+
+EOF
+            , $process->getErrorOutput());
+        self::assertEquals(12, $process->getExitCode());
+    }
+
+    public function testFailedCheckOnOneRequestInvalidJson()
+    {
+        $process = $this->createProcess('failed_check_one_request_invalid_json', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076804"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Current time: 1554076801"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Current time: 1554076802"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Execute Starts:  {"events":"1"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::patch {"coolingSystemPowerPct":30}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":30}}"}"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"Current time: 1554076803"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Current time: 1554076804"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Execute checks:  {"events":"1","isTelemetry":false}"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::get ["coolingSystemPowerPct"]"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/coolingSystemPowerPct"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::parseResult {"html":"sdf"}"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"TerminateService::exit {"code":12}"}
+
+EOF
+            , $process->getOutput());
+        self::assertLogEquals(<<<EOF
+{"type":"error","timestamp":1554076804,"message":"Invalid exchangeService {"event":"{"class":"Sputnik\Models\Events\CheckOperationResultsEvent","type":"check_operation_results","operation":"{"class":"Sputnik\Models\Operations\CoolingSystemPowerPctOperation","id":1,"deltaT":2,"variable":"coolingSystemPowerPct","value":30,"timeout":2,"critical":true}"}","message":"ExchangeService: invalid json","context":{"html":"sdf"}}"}
+
+EOF
+            , $process->getErrorOutput());
+        self::assertEquals(12, $process->getExitCode());
+    }
+
+    public function testTwoRequests()
+    {
+        $process = $this->createProcess('two_request_in_one_second', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/two_request_in_one_second.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-11T21:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-11T21:00:00Z","type":"info","message":"Filename: tests/data/flight_program/two_request_in_one_second.json"}
+{"time":"2019-04-11T21:00:00Z","type":"info","message":"Start time: 1555016400"}
+{"time":"2019-04-11T21:00:00Z","type":"info","message":"End time: 1555016403"}
+{"time":"2019-04-11T21:00:00Z","type":"info","message":"Current time: 1555016400"}
+{"time":"2019-04-11T21:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-11T21:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-11T21:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-11T21:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-11T21:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1555016400,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-11T21:00:01Z","type":"info","message":"Current time: 1555016401"}
+{"time":"2019-04-11T21:00:01Z","type":"info","message":"Execute Starts:  {"events":"1, 2"}"}
+{"time":"2019-04-11T21:00:01Z","type":"info","message":"ExchangeService::patch {"coolingSystemPowerPct":30,"radioPowerDbm":50}"}
+{"time":"2019-04-11T21:00:01Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-11T21:00:01Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":30},"radioPowerDbm":{"set":50,"value":50}}"}"}
+{"time":"2019-04-11T21:00:02Z","type":"info","message":"Current time: 1555016402"}
+{"time":"2019-04-11T21:00:03Z","type":"info","message":"Current time: 1555016403"}
+{"time":"2019-04-11T21:00:03Z","type":"info","message":"Execute checks:  {"events":"1, 2","isTelemetry":false}"}
+{"time":"2019-04-11T21:00:03Z","type":"info","message":"ExchangeService::get ["coolingSystemPowerPct","radioPowerDbm"]"}
+{"time":"2019-04-11T21:00:03Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/coolingSystemPowerPct,radioPowerDbm"}
+{"time":"2019-04-11T21:00:03Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":30},"radioPowerDbm":{"set":50,"value":50}}"}"}
+
+EOF,
+            $process->getOutput());
+        self::assertLogEquals('', $process->getErrorOutput());
+        self::assertEquals(0, $process->getExitCode());
+    }
+
+    public function testTelemetryEverySecond()
+    {
+        $process = $this->createProcess('telemetry_every_second', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+            'TELEMETRY_FREQ' => 1,
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"End time: 1554076804"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Current time: 1554076800"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Current time: 1554076801"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:01Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076801,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Current time: 1554076802"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Execute Starts:  {"events":"1"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::patch {"coolingSystemPowerPct":30}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":30}}"}"}
+{"time":"2019-04-01T00:00:02Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076802,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"Current time: 1554076803"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-01T00:00:03Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1554076803,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Current time: 1554076804"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Execute checks:  {"events":"1","isTelemetry":true}"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::get ["coolingSystemPowerPct","orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/coolingSystemPowerPct,orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5},"coolingSystemPowerPct":{"set":30,"value":30}}"}"}
+{"time":"2019-04-01T00:00:04Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5,"coolingSystemPowerPct":30}"}
+{"type":"values","timestamp":1554076804,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+
+EOF,
+            $process->getOutput());
+        self::assertLogEquals('', $process->getErrorOutput());
+        self::assertEquals(0, $process->getExitCode());
     }
 
     private function createProcess(string $test, array $env = null): Process

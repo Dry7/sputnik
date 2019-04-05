@@ -9,6 +9,7 @@ use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Date;
 use Mockery\Mock;
 use Sputnik\Exceptions\InvalidFlightProgram;
+use Sputnik\Exceptions\RequestException;
 use Sputnik\Models\Operations\Operation;
 use Sputnik\Services\ExchangeService;
 use Sputnik\Services\FlightProgramService;
@@ -195,23 +196,23 @@ class FlightProgramServiceTest extends TestCase
         $flightProgram = $this->service->load('tests/data/flight_program/one_request.json');
 
         Date::shouldReceive('now')->andReturn(
-            Carbon::createFromTimestamp(1555016400),
-            Carbon::createFromTimestamp(1555016400),
-            Carbon::createFromTimestamp(1555016401),
-            Carbon::createFromTimestamp(1555016402),
-            Carbon::createFromTimestamp(1555016403),
-            Carbon::createFromTimestamp(1555016404),
-            Carbon::createFromTimestamp(1555016405)
+            Carbon::createFromTimestamp(1554076800),
+            Carbon::createFromTimestamp(1554076800),
+            Carbon::createFromTimestamp(1554076801),
+            Carbon::createFromTimestamp(1554076802),
+            Carbon::createFromTimestamp(1554076803),
+            Carbon::createFromTimestamp(1554076804),
+            Carbon::createFromTimestamp(1554076805)
         );
 
-        $this->logger->shouldReceive('info')->with('Start time: 1555016400')->once();
-        $this->logger->shouldReceive('info')->with('End time: 1555016404')->once();
-        $this->logger->shouldReceive('info')->with('Current time: 1555016400')->once();
+        $this->logger->shouldReceive('info')->with('Start time: 1554076800')->once();
+        $this->logger->shouldReceive('info')->with('End time: 1554076804')->once();
+        $this->logger->shouldReceive('info')->with('Current time: 1554076800')->once();
         $this->logger->shouldReceive('info')
             ->with('Execute checks: ', ['events' => '', 'isTelemetry' => true])
             ->once();
-        $this->logger->shouldReceive('info')->with('Current time: 1555016401')->once();
-        $this->logger->shouldReceive('info')->with('Current time: 1555016402')->once();
+        $this->logger->shouldReceive('info')->with('Current time: 1554076801')->once();
+        $this->logger->shouldReceive('info')->with('Current time: 1554076802')->once();
         $this->logger->shouldReceive('info')->with('Execute Starts: ', ['events' => '1'])->once();
         $this->exchangeService
             ->shouldReceive('get')
@@ -230,8 +231,8 @@ class FlightProgramServiceTest extends TestCase
             ])
             ->once();
 
-        $this->logger->shouldReceive('info')->with('Current time: 1555016403')->once();
-        $this->logger->shouldReceive('info')->with('Current time: 1555016404')->once();
+        $this->logger->shouldReceive('info')->with('Current time: 1554076803')->once();
+        $this->logger->shouldReceive('info')->with('Current time: 1554076804')->once();
         $this->logger->shouldReceive('info')
             ->with('Execute checks: ', ['events' => '1', 'isTelemetry' => false])
             ->once();
@@ -307,7 +308,7 @@ class FlightProgramServiceTest extends TestCase
     }
 
     /**
-     * @expectedException Sputnik\Exceptions\EventException
+     * @expectedException Sputnik\Exceptions\InvalidCheck
      */
     public function testRunTwoRequestsWithOneVariable()
     {
@@ -362,6 +363,35 @@ class FlightProgramServiceTest extends TestCase
                 'orientationZenithAngleDeg' => (object)['set' => 2, 'value' => 2],
             ])
             ->once();
+
+        $this->service->run($flightProgram);
+    }
+
+    /**
+     * @expectedException Sputnik\Exceptions\InvalidCheck
+     */
+    public function testRunExchangeServiceGetException()
+    {
+        Carbon::setTestNow('2019-04-01 00:00:00');
+
+        $flightProgram = $this->service->load('tests/data/flight_program/empty.json');
+
+        $this->logger->shouldReceive('info')->with('Start time: 1554076800')->once();
+        $this->logger->shouldReceive('info')->with('End time: 1554076800')->once();
+        $this->logger->shouldReceive('info')->with('Current time: 1554076800')->once();
+        $this->logger->shouldReceive('info')
+            ->with('Execute checks: ', ['events' => '', 'isTelemetry' => true])
+            ->once();
+        $this->exchangeService
+            ->shouldReceive('get')
+            ->with(TelemetryService::OPERATIONS)
+            ->andThrow(RequestException::timeout())
+            ->once();
+
+        Date::shouldReceive('now')->andReturn(
+            Carbon::create(2019, 4, 1, 0, 0, 0),
+            Carbon::create(2019, 4, 1, 0, 0, 0)
+        );
 
         $this->service->run($flightProgram);
     }
