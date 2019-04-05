@@ -69,12 +69,18 @@ class FlightProgram
     {
         $this->schedule = [];
 
+        $now = now()->timestamp;
+
         foreach ($this->operations as $operation) {
             $time = $operation->time($this->startUp);
             $checkTime = $time + $operation->timeout();
 
-            $this->pushToSchedule(Event::createEvent($time, Event::TYPE_START_OPERATION, $operation));
-            $this->pushToSchedule(Event::createEvent($checkTime, Event::TYPE_CHECK_OPERATION_RESULTS, $operation));
+            if ($time >= $now) {
+                $this->pushToSchedule(Event::createEvent($time, Event::TYPE_START_OPERATION, $operation));
+            }
+            if ($checkTime >= $now) {
+                $this->pushToSchedule(Event::createEvent($checkTime, Event::TYPE_CHECK_OPERATION_RESULTS, $operation));
+            }
         }
 
         return $this->schedule;

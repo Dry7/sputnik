@@ -100,6 +100,20 @@ class ControlPanelCommandTest extends TestCase
                 '{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5},"coolingSystemPowerPct":{"set":30,"value":30}}',
             ],
         ],
+        'overpass' => [
+            'date' => '2020-04-01 00:00:00',
+            'requests' => [
+                self::TELEMETRY_RESPONSE
+            ],
+        ],
+        'overpass_part' => [
+            'date' => '2019-04-11 21:00:15',
+            'requests' => [
+                self::TELEMETRY_RESPONSE,
+                '{"orientationZenithAngleDeg":{"set":270,"value":270},"orientationAzimuthAngleDeg":{"set":0,"value":0}}',
+                '{"orientationZenithAngleDeg":{"set":270,"value":270},"orientationAzimuthAngleDeg":{"set":0,"value":0}}',
+            ],
+        ],
     ];
 
     public static function environment(string $test)
@@ -643,12 +657,85 @@ EOF,
         self::assertEquals(0, $process->getExitCode());
     }
 
+    public function testOverpassFlightProgram()
+    {
+        $process = $this->createProcess('overpass', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/default.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2020-04-01T00:00:00Z","type":"info","message":"Let`s go"}
+{"time":"2020-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/default.json"}
+{"time":"2020-04-01T00:00:00Z","type":"info","message":"Start time: 1585699200"}
+{"time":"2020-04-01T00:00:00Z","type":"info","message":"End time: 1585699200"}
+{"time":"2020-04-01T00:00:00Z","type":"info","message":"Current time: 1585699200"}
+{"time":"2020-04-01T00:00:00Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2020-04-01T00:00:00Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2020-04-01T00:00:00Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2020-04-01T00:00:00Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2020-04-01T00:00:00Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1585699200,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+
+EOF
+            , $process->getOutput()
+        );
+        self::assertLogEquals('', $process->getErrorOutput());
+        self::assertEquals(0, $process->getExitCode());
+    }
+
+    public function testOverpassOnlyPart()
+    {
+        $process = $this->createProcess('overpass_part', [
+            'FLIGHT_PROGRAM' => 'tests/data/flight_program/default.json',
+            'EXCHANGE_URI' => 'https://exchange.internal/api/v12',
+        ]);
+        $process->run();
+
+        self::assertLogEquals(<<<EOF
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"Let`s go"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"Filename: tests/data/flight_program/default.json"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"Start time: 1555016415"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"End time: 1555016425"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"Current time: 1555016415"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"Execute checks:  {"events":"","isTelemetry":true}"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"ExchangeService::get ["orientationAzimuthAngleDeg","orientationZenithAngleDeg","vesselAltitudeM","vesselSpeedMps","mainEngineFuelPct","temperatureInternalDeg"]"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationAzimuthAngleDeg":{"set":5,"value":5},"orientationZenithAngleDeg":{"set":185,"value":185},"vesselAltitudeM":{"set":5,"value":5},"vesselSpeedMps":{"set":5,"value":5},"mainEngineFuelPct":{"set":5,"value":5},"temperatureInternalDeg":{"set":5,"value":5}}"}"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"Execute Starts:  {"events":"3, 4"}"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"ExchangeService::patch {"orientationZenithAngleDeg":270,"orientationAzimuthAngleDeg":0}"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"Request https://exchange.internal/api/v12/settings"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationZenithAngleDeg":{"set":270,"value":270},"orientationAzimuthAngleDeg":{"set":0,"value":0}}"}"}
+{"time":"2019-04-11T21:00:15Z","type":"info","message":"Telemetry::send {"orientationAzimuthAngleDeg":5,"orientationZenithAngleDeg":185,"vesselAltitudeM":5,"vesselSpeedMps":5,"mainEngineFuelPct":5,"temperatureInternalDeg":5}"}
+{"type":"values","timestamp":1555016415,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
+{"time":"2019-04-11T21:00:16Z","type":"info","message":"Current time: 1555016416"}
+{"time":"2019-04-11T21:00:17Z","type":"info","message":"Current time: 1555016417"}
+{"time":"2019-04-11T21:00:18Z","type":"info","message":"Current time: 1555016418"}
+{"time":"2019-04-11T21:00:19Z","type":"info","message":"Current time: 1555016419"}
+{"time":"2019-04-11T21:00:20Z","type":"info","message":"Current time: 1555016420"}
+{"time":"2019-04-11T21:00:21Z","type":"info","message":"Current time: 1555016421"}
+{"time":"2019-04-11T21:00:22Z","type":"info","message":"Current time: 1555016422"}
+{"time":"2019-04-11T21:00:23Z","type":"info","message":"Current time: 1555016423"}
+{"time":"2019-04-11T21:00:24Z","type":"info","message":"Current time: 1555016424"}
+{"time":"2019-04-11T21:00:25Z","type":"info","message":"Current time: 1555016425"}
+{"time":"2019-04-11T21:00:25Z","type":"info","message":"Execute checks:  {"events":"3, 4","isTelemetry":false}"}
+{"time":"2019-04-11T21:00:25Z","type":"info","message":"ExchangeService::get ["orientationZenithAngleDeg","orientationAzimuthAngleDeg"]"}
+{"time":"2019-04-11T21:00:25Z","type":"info","message":"Request https://exchange.internal/api/v12/settings/orientationZenithAngleDeg,orientationAzimuthAngleDeg"}
+{"time":"2019-04-11T21:00:25Z","type":"info","message":"ExchangeService::parseResult {"html":"{"orientationZenithAngleDeg":{"set":270,"value":270},"orientationAzimuthAngleDeg":{"set":0,"value":0}}"}"}
+
+EOF
+            , $process->getOutput());
+        self::assertLogEquals('', $process->getErrorOutput());
+        self::assertEquals(0, $process->getExitCode());
+    }
+
     private function createProcess(string $test, array $env = null): Process
     {
         return new Process(
             ['php', 'artisan', 'sputnik:control-panel', '--test=' . $test],
             null,
-            $env + ['APP_ENV' => 'testing'],
+            $env + ['APP_ENV' => 'testing', 'TELEMETRY_FREQ' => 20],
             null,
             self::TIMEOUT
         );

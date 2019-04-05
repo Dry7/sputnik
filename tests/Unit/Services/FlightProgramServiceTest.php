@@ -183,6 +183,7 @@ class FlightProgramServiceTest extends TestCase
         Date::shouldReceive('now')->andReturn(
             Carbon::create(2019, 4, 1, 0, 0, 0),
             Carbon::create(2019, 4, 1, 0, 0, 0),
+            Carbon::create(2019, 4, 1, 0, 0, 0),
             Carbon::create(2019, 4, 1, 0, 0, 1)
         );
 
@@ -196,6 +197,7 @@ class FlightProgramServiceTest extends TestCase
         $flightProgram = $this->service->load('tests/data/flight_program/one_request.json');
 
         Date::shouldReceive('now')->andReturn(
+            Carbon::createFromTimestamp(1554076800),
             Carbon::createFromTimestamp(1554076800),
             Carbon::createFromTimestamp(1554076800),
             Carbon::createFromTimestamp(1554076801),
@@ -258,6 +260,7 @@ class FlightProgramServiceTest extends TestCase
         Date::shouldReceive('now')->andReturn(
             Carbon::createFromTimestamp(1555016400),
             Carbon::createFromTimestamp(1555016400),
+            Carbon::createFromTimestamp(1555016400),
             Carbon::createFromTimestamp(1555016401),
             Carbon::createFromTimestamp(1555016402),
             Carbon::createFromTimestamp(1555016403),
@@ -317,6 +320,7 @@ class FlightProgramServiceTest extends TestCase
         $flightProgram = $this->service->load('tests/data/flight_program/two_requests_with_one_variable.json');
 
         Date::shouldReceive('now')->andReturn(
+            Carbon::createFromTimestamp(1555016400),
             Carbon::createFromTimestamp(1555016400),
             Carbon::createFromTimestamp(1555016400),
             Carbon::createFromTimestamp(1555016401),

@@ -95,6 +95,7 @@ class FlightProgramService
             if ($isTelemetry) {
                 $this->telemetryService->send($this->variables);
             }
+            unset($schedule[$time]);
             $this->timeService->sleep(1);
             $time = now()->timestamp;
         } while ($time <= $maxTime);
