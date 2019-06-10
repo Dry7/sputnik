@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
+use Carbon\Carbon;
 use Generator;
 use Sputnik\Models\Events\Event;
 use Sputnik\Models\FlightProgram;
@@ -113,6 +114,8 @@ class FlightProgramTest extends TestCase
 
     public function testCreateSchedule()
     {
+        Carbon::setTestNow('2019-01-01');
+
         // arrange
         $json = $this->readFixture('flight_program/default.json');
         $operations = [
@@ -166,6 +169,8 @@ class FlightProgramTest extends TestCase
 
     public function testGetSchedule()
     {
+        Carbon::setTestNow('2019-01-01');
+
         // arrange
         $json = $this->readFixture('flight_program/default.json');
         $operations = [
