@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $guzzleHandleStack = static function () {
             return HandlerStack::create();
@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(Client::class, static function () {
             return new Client([
                 'handler' => app(HandlerStack::class),
-                'on_stats' => static function (TransferStats $stats) {
+                'on_stats' => static function (TransferStats $stats): void {
                     Log::info('Request ' . $stats->getEffectiveUri(), $stats->getHandlerStats());
                 }
             ]);

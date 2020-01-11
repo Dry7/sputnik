@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 class FlightProgramTest extends TestCase
 {
-    public function testFromJson()
+    public function testFromJson(): void
     {
         // arrange
         $json = '{"startUp": 1555016400,"operations":[]}';
@@ -28,7 +28,7 @@ class FlightProgramTest extends TestCase
         self::assertEquals([], $this->iterator2array($result->getOperations()));
     }
 
-    public function testFromJsonOperations()
+    public function testFromJsonOperations(): void
     {
         // arrange
         $json = $this->readFixture('flight_program/default.json');
@@ -47,7 +47,7 @@ class FlightProgramTest extends TestCase
         ], $this->iterator2array($result->getOperations()));
     }
 
-    public function testFromJsonInvalidJson()
+    public function testFromJsonInvalidJson(): void
     {
         // assert
         self::expectException(InvalidFlightProgram::class);
@@ -81,7 +81,7 @@ class FlightProgramTest extends TestCase
      *
      * @param string $json
      */
-    public function testFromJsonInvalidStartUp(string $json)
+    public function testFromJsonInvalidStartUp(string $json): void
     {
         // assert
         self::expectException(InvalidFlightProgram::class);
@@ -107,7 +107,7 @@ class FlightProgramTest extends TestCase
      *
      * @param string $json
      */
-    public function testFromJsonInvalidOperations(string $json)
+    public function testFromJsonInvalidOperations(string $json): void
     {
         // assert
         self::expectException(InvalidFlightProgram::class);
@@ -117,7 +117,7 @@ class FlightProgramTest extends TestCase
         FlightProgram::fromJson($json);
     }
 
-    public function testCreateSchedule()
+    public function testCreateSchedule(): void
     {
         Carbon::setTestNow('2019-01-01');
 
@@ -172,7 +172,7 @@ class FlightProgramTest extends TestCase
         ], $result);
     }
 
-    public function testGetSchedule()
+    public function testGetSchedule(): void
     {
         Carbon::setTestNow('2019-01-01');
 

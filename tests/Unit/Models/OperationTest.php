@@ -41,7 +41,7 @@ class OperationTest extends TestCase
      * @param string $type
      * @param string $class
      */
-    public function testCreateOperation(string $type, string $class)
+    public function testCreateOperation(string $type, string $class): void
     {
         // act
         $result = Operation::createOperation(1, 0, $type, 20, 1);
@@ -50,7 +50,7 @@ class OperationTest extends TestCase
         self::assertInstanceOf($class, $result);
     }
 
-    public function testCreateOperationInvalidType()
+    public function testCreateOperationInvalidType(): void
     {
         // assert
         self::expectException(InvalidOperation::class);
@@ -60,7 +60,7 @@ class OperationTest extends TestCase
         Operation::createOperation(1, 0, 'test', 20, 1);
     }
 
-    public function testCreateOperationFromJsonObject()
+    public function testCreateOperationFromJsonObject(): void
     {
         // arrange
         $operation = $this->createOperation();
@@ -106,7 +106,7 @@ class OperationTest extends TestCase
      *
      * @param array $data
      */
-    public function testCreateOperationFromJsonObjectInvalid(array $data)
+    public function testCreateOperationFromJsonObjectInvalid(array $data): void
     {
         // assert
         self::expectException(InvalidOperation::class);
@@ -114,7 +114,7 @@ class OperationTest extends TestCase
         Operation::createOperationFromJsonObject((object)$data);
     }
 
-    public function testGetID()
+    public function testGetID(): void
     {
         // arrange
         $operation = Operation::createOperation(
@@ -132,7 +132,7 @@ class OperationTest extends TestCase
         self::assertSame(1, $result);
     }
 
-    public function testGetDeltaT()
+    public function testGetDeltaT(): void
     {
         // arrange
         /** @var Operation $operation */
@@ -151,7 +151,7 @@ class OperationTest extends TestCase
         self::assertSame(0, $result);
     }
 
-    public function testGetVariable()
+    public function testGetVariable(): void
     {
         // arrange
         /** @var Operation $operation */
@@ -170,7 +170,7 @@ class OperationTest extends TestCase
         self::assertSame(Operation::RADIO_POWER_DBM, $result);
     }
 
-    public function testGetValue()
+    public function testGetValue(): void
     {
         // arrange
         /** @var Operation $operation */
@@ -189,7 +189,7 @@ class OperationTest extends TestCase
         self::assertSame(20, $result);
     }
 
-    public function testGetTimeout()
+    public function testGetTimeout(): void
     {
         // arrange
         /** @var Operation $operation */
@@ -208,7 +208,7 @@ class OperationTest extends TestCase
         self::assertSame(1, $result);
     }
 
-    public function testGetCritical()
+    public function testGetCritical(): void
     {
         // arrange
         /** @var Operation $operation */
@@ -228,7 +228,7 @@ class OperationTest extends TestCase
         self::assertSame(false, $result);
     }
 
-    public function testSetID()
+    public function testSetID(): void
     {
         // arrange
         $operation = Operation::createOperation(
@@ -262,7 +262,7 @@ class OperationTest extends TestCase
      * @param $value
      * @param string $exception
      */
-    public function testSetIDZero($value, string $exception)
+    public function testSetIDZero($value, string $exception): void
     {
         self::expectException($exception);
 
@@ -276,7 +276,7 @@ class OperationTest extends TestCase
         );
     }
 
-    public function testSetDeltaT()
+    public function testSetDeltaT(): void
     {
         // arrange
         /** @var Operation $operation */
@@ -310,7 +310,7 @@ class OperationTest extends TestCase
      * @param $value
      * @param string $exception
      */
-    public function testSetDeltaTZero($value, string $exception)
+    public function testSetDeltaTZero($value, string $exception): void
     {
         self::expectException($exception);
 
@@ -324,7 +324,7 @@ class OperationTest extends TestCase
         );
     }
 
-    public function testSetVariable()
+    public function testSetVariable(): void
     {
         // arrange
         /** @var Operation $operation */
@@ -343,7 +343,7 @@ class OperationTest extends TestCase
         self::assertSame(Operation::VESSEL_SPEED_MPS, $result);
     }
 
-    public function testSetVariableZero()
+    public function testSetVariableZero(): void
     {
         self::expectException(InvalidOperation::class);
 
@@ -357,7 +357,7 @@ class OperationTest extends TestCase
         )->setVariable('test');
     }
 
-    public function tesSetValue()
+    public function tesSetValue(): void
     {
         // arrange
         /** @var Operation $operation */
@@ -391,7 +391,7 @@ class OperationTest extends TestCase
      * @param $value
      * @param string $exception
      */
-    public function testSetValueTZero($value, string $exception)
+    public function testSetValueTZero($value, string $exception): void
     {
         self::expectException($exception);
 
@@ -405,7 +405,7 @@ class OperationTest extends TestCase
         );
     }
 
-    public function testSetTimeout()
+    public function testSetTimeout(): void
     {
         // arrange
         /** @var Operation $operation */
@@ -440,7 +440,7 @@ class OperationTest extends TestCase
      * @param $value
      * @param string $exception
      */
-    public function testSetTimeoutZero($value, string $exception)
+    public function testSetTimeoutZero($value, string $exception): void
     {
         self::expectException($exception);
 
@@ -454,7 +454,7 @@ class OperationTest extends TestCase
         );
     }
 
-    public function testSetCritical()
+    public function testSetCritical(): void
     {
         // arrange
         /** @var Operation $operation */

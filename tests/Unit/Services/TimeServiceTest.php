@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class TimeServiceTest extends TestCase
 {
-    public function testTesting()
+    public function testTesting(): void
     {
         // arrange
         $date = new Carbon();
@@ -27,7 +27,7 @@ class TimeServiceTest extends TestCase
         $service->sleep(1);
     }
 
-    public function testProduction()
+    public function testProduction(): void
     {
         // arrange
         $service = new TimeService(false);

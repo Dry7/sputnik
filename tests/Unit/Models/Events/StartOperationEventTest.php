@@ -13,7 +13,7 @@ use stdClass;
 
 class StartOperationEventTest extends TestCase
 {
-    public function testExecute()
+    public function testExecute(): void
     {
         // arrange
         $operation = self::createOperation();
@@ -30,7 +30,7 @@ class StartOperationEventTest extends TestCase
             ->setTime(1555016400)
             ->setOperation($operation);
 
-        $this->mock(ExchangeService::class, static function ($mock) use ($operation, $data) {
+        $this->mock(ExchangeService::class, static function ($mock) use ($operation, $data): void {
             $mock->shouldReceive('patch')
                 ->with([$operation->variable() => $operation->value()])
                 ->andReturn($data)
@@ -65,7 +65,7 @@ class StartOperationEventTest extends TestCase
      *
      * @param stdClass $data
      */
-    public function testValidateResult(stdClass $data)
+    public function testValidateResult(stdClass $data): void
     {
         // arrange
         $operation = Operation::createOperation(
@@ -130,7 +130,7 @@ class StartOperationEventTest extends TestCase
      * @param stdClass $data
      * @param string $exception
      */
-    public function testValidateResultInvalidCritical(stdClass $data, string $exception)
+    public function testValidateResultInvalidCritical(stdClass $data, string $exception): void
     {
         // arrange
         $operation = Operation::createOperation(
@@ -155,7 +155,7 @@ class StartOperationEventTest extends TestCase
      * @param stdClass $data
      * @param string $exception
      */
-    public function testValidateResultInvalidNotCritical(stdClass $data, string $exception)
+    public function testValidateResultInvalidNotCritical(stdClass $data, string $exception): void
     {
         // arrange
         $operation = Operation::createOperation(

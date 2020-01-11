@@ -118,7 +118,7 @@ class ControlPanelCommandTest extends TestCase
         ],
     ];
 
-    public static function environment(string $test)
+    public static function environment(string $test): void
     {
         $data = self::TEST_ENVIRONMENTS[$test];
 
@@ -133,7 +133,7 @@ class ControlPanelCommandTest extends TestCase
         }
     }
 
-    public function testFileNotFound()
+    public function testFileNotFound(): void
     {
         $process = $this->createProcess('file_not_found', [
             'FLIGHT_PROGRAM' => '/tmp/not_existing_file.json',
@@ -155,7 +155,7 @@ EOF
         self::assertEquals(10, $process->getExitCode());
     }
 
-    public function testEmptyOperations()
+    public function testEmptyOperations(): void
     {
         $process = $this->createProcess('empty_operations', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/empty.json',
@@ -185,7 +185,7 @@ EOF
         self::assertEquals(0, $process->getExitCode());
     }
 
-    public function testRequestError()
+    public function testRequestError(): void
     {
         $process = $this->createProcess('request_error', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/empty.json',
@@ -220,7 +220,7 @@ EOF
         self::assertEquals(12, $process->getExitCode());
     }
 
-    public function testInvalidPatchResponse()
+    public function testInvalidPatchResponse(): void
     {
         $process = $this->createProcess('invalid_patch_response', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
@@ -261,7 +261,7 @@ EOF
         self::assertEquals(11, $process->getExitCode());
     }
 
-    public function testWrongPatchResponse()
+    public function testWrongPatchResponse(): void
     {
         $process = $this->createProcess('invalid_wrong_response', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
@@ -302,7 +302,7 @@ EOF
         self::assertEquals(11, $process->getExitCode());
     }
 
-    public function testWrongPatchResponseNotCritical()
+    public function testWrongPatchResponseNotCritical(): void
     {
         $process = $this->createProcess('wrong_patch_not_critical', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/wrong_patch_not_critical.json',
@@ -359,7 +359,7 @@ EOF
         self::assertEquals(0, $process->getExitCode());
     }
 
-    public function testWrongTypePatchResponse()
+    public function testWrongTypePatchResponse(): void
     {
         $process = $this->createProcess('invalid_wrong_type_response', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
@@ -400,7 +400,7 @@ EOF
         self::assertEquals(11, $process->getExitCode());
     }
 
-    public function testFailedCheckOnOneRequest()
+    public function testFailedCheckOnOneRequest(): void
     {
         $process = $this->createProcess('failed_check_one_request', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
@@ -444,7 +444,7 @@ EOF
         self::assertEquals(12, $process->getExitCode());
     }
 
-    public function testFailedCheckOnOneRequestNotCritical()
+    public function testFailedCheckOnOneRequestNotCritical(): void
     {
         $process = $this->createProcess('failed_check_one_request', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request_not_critical.json',
@@ -487,7 +487,7 @@ EOF
         self::assertEquals(0, $process->getExitCode());
     }
 
-    public function testFailedCheckOnOneRequestType()
+    public function testFailedCheckOnOneRequestType(): void
     {
         $process = $this->createProcess('failed_check_one_request_type', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
@@ -531,7 +531,7 @@ EOF
         self::assertEquals(12, $process->getExitCode());
     }
 
-    public function testFailedCheckOnOneRequestInvalidJson()
+    public function testFailedCheckOnOneRequestInvalidJson(): void
     {
         $process = $this->createProcess('failed_check_one_request_invalid_json', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
@@ -575,7 +575,7 @@ EOF
         self::assertEquals(12, $process->getExitCode());
     }
 
-    public function testTwoRequests()
+    public function testTwoRequests(): void
     {
         $process = $this->createProcess('two_request_in_one_second', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/two_request_in_one_second.json',
@@ -615,7 +615,7 @@ EOF,
         self::assertEquals(0, $process->getExitCode());
     }
 
-    public function testTelemetryEverySecond()
+    public function testTelemetryEverySecond(): void
     {
         $process = $this->createProcess('telemetry_every_second', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/one_request.json',
@@ -677,7 +677,7 @@ EOF,
         self::assertEquals(0, $process->getExitCode());
     }
 
-    public function testOverpassFlightProgram()
+    public function testOverpassFlightProgram(): void
     {
         $process = $this->createProcess('overpass', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/default.json',
@@ -707,7 +707,7 @@ EOF
         self::assertEquals(0, $process->getExitCode());
     }
 
-    public function testOverpassOnlyPart()
+    public function testOverpassOnlyPart(): void
     {
         $process = $this->createProcess('overpass_part', [
             'FLIGHT_PROGRAM' => 'tests/data/flight_program/default.json',

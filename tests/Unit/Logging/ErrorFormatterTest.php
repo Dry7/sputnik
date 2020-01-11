@@ -64,12 +64,12 @@ class ErrorFormatterTest extends TestCase
      * @param array $record
      * @param string $expected
      */
-    public function testFormat(array $record, string $expected)
+    public function testFormat(array $record, string $expected): void
     {
         $this->assertLogEquals($expected, $this->formatter->format($record));
     }
 
-    public function testFormatBatch()
+    public function testFormatBatch(): void
     {
         $records = [
             [

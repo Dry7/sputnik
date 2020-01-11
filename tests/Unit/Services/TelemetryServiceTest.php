@@ -25,7 +25,7 @@ class TelemetryServiceTest extends TestCase
         parent::setUp();
     }
 
-    public function testSend()
+    public function testSend(): void
     {
         // arrange
         $variables = [

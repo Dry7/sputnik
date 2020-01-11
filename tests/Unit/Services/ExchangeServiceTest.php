@@ -18,7 +18,7 @@ use Mockery;
 
 class ExchangeServiceTest extends TestCase
 {
-    public function testGet()
+    public function testGet(): void
     {
         // arrange
         $data = (object)[
@@ -44,7 +44,7 @@ class ExchangeServiceTest extends TestCase
         self::assertEquals($data, $result);
     }
 
-    public function testGetJsonException()
+    public function testGetJsonException(): void
     {
         // assert
         self::expectException(RequestException::class);
@@ -66,7 +66,7 @@ class ExchangeServiceTest extends TestCase
         $service->get(['orientationZenithAngleDeg', 'orientationAzimuthAngleDeg']);
     }
 
-    public function testGetConnectException()
+    public function testGetConnectException(): void
     {
         // assert
         self::expectException(RequestException::class);
@@ -86,7 +86,7 @@ class ExchangeServiceTest extends TestCase
         $service->get(['orientationZenithAngleDeg', 'orientationAzimuthAngleDeg']);
     }
 
-    public function testPatch()
+    public function testPatch(): void
     {
         // arrange
         $data = (object)[

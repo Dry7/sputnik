@@ -35,7 +35,7 @@ class HandlerTest extends TestCase
         parent::setUp();
     }
 
-    public function testReport()
+    public function testReport(): void
     {
         $logger = Mockery::mock(LogManager::class);
         $terminateService = Mockery::mock(TerminateService::class);
@@ -51,7 +51,7 @@ class HandlerTest extends TestCase
         $this->handler->report($exception);
     }
 
-    public function testRender()
+    public function testRender(): void
     {
         // arrange
         /** @var Request $request */

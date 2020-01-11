@@ -68,7 +68,7 @@ abstract class Event
         return true;
     }
 
-    private function throwValueException($data)
+    private function throwValueException($data): void
     {
         switch ($this->type) {
             case self::TYPE_START_OPERATION:

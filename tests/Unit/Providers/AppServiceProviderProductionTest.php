@@ -21,7 +21,7 @@ class AppServiceProviderProductionTest extends TestCase
         parent::tearDown();
     }
 
-    public function testHandlerStackInProdMode()
+    public function testHandlerStackInProdMode(): void
     {
         // act
         $instance = app(HandlerStack::class);

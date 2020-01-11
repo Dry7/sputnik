@@ -17,7 +17,7 @@ use stdClass;
 
 class CheckOperationResultsEventTest extends TestCase
 {
-    public function t2estExecute()
+    public function t2estExecute(): void
     {
         // arrange
         $operation = self::createOperation();
@@ -34,7 +34,7 @@ class CheckOperationResultsEventTest extends TestCase
             ->setTime(1555016400)
             ->setOperation($operation);
 
-        $this->mock(ExchangeService::class, static function ($mock) use ($operation, $data) {
+        $this->mock(ExchangeService::class, static function ($mock) use ($operation, $data): void {
             $mock->shouldReceive('get')
                 ->with([$operation->variable()])
                 ->andReturn($data)
@@ -48,7 +48,7 @@ class CheckOperationResultsEventTest extends TestCase
         $stub->shouldHaveReceived('validateResult')->with($data)->once();
     }
 
-    public function testExecuteException()
+    public function testExecuteException(): void
     {
         // assert
         self::expectException(InvalidCheck::class);
@@ -56,7 +56,7 @@ class CheckOperationResultsEventTest extends TestCase
         // arrange
         $event = self::createEvent(Event::TYPE_CHECK_OPERATION_RESULTS);
 
-        $this->mock(ExchangeService::class, static function ($mock) use ($event) {
+        $this->mock(ExchangeService::class, static function ($mock) use ($event): void {
             $mock->shouldReceive('get')
                 ->with([$event->getOperation()->variable()])
                 ->andThrow(RequestException::timeout())
@@ -88,7 +88,7 @@ class CheckOperationResultsEventTest extends TestCase
      *
      * @param stdClass $data
      */
-    public function testValidateResult(stdClass $data)
+    public function testValidateResult(stdClass $data): void
     {
         // arrange
         $operation = Operation::createOperation(
@@ -159,7 +159,7 @@ class CheckOperationResultsEventTest extends TestCase
      * @param stdClass $data
      * @param string $exception
      */
-    public function testValidateResultInvalidCritical(stdClass $data, string $exception)
+    public function testValidateResultInvalidCritical(stdClass $data, string $exception): void
     {
         // arrange
         $operation = Operation::createOperation(
@@ -184,7 +184,7 @@ class CheckOperationResultsEventTest extends TestCase
      * @param stdClass $data
      * @param string $exception
      */
-    public function testValidateResultInvalidNotCritical(stdClass $data, string $exception)
+    public function testValidateResultInvalidNotCritical(stdClass $data, string $exception): void
     {
         // arrange
         $operation = Operation::createOperation(

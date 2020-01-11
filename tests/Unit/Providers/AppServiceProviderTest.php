@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 class AppServiceProviderTest extends TestCase
 {
-    public function testHandlerStack()
+    public function testHandlerStack(): void
     {
         // act
         $instance = app(HandlerStack::class);
@@ -26,7 +26,7 @@ class AppServiceProviderTest extends TestCase
         $this->assertInstanceOf(HandlerStack::class, $instance);
     }
 
-    public function testClient()
+    public function testClient(): void
     {
         // act
         $instance = app(Client::class);
@@ -35,7 +35,7 @@ class AppServiceProviderTest extends TestCase
         $this->assertInstanceOf(Client::class, $instance);
     }
 
-    public function testClientOnStat()
+    public function testClientOnStat(): void
     {
         // arrange
         $stats = ['hits' => 0];
@@ -54,7 +54,7 @@ class AppServiceProviderTest extends TestCase
         app(Client::class)->getConfig('on_stats')($transferStats);
     }
 
-    public function testExchangeService()
+    public function testExchangeService(): void
     {
         // act
         $instance = app(ExchangeService::class);
@@ -63,7 +63,7 @@ class AppServiceProviderTest extends TestCase
         $this->assertInstanceOf(ExchangeService::class, $instance);
     }
 
-    public function testFlightProgramService()
+    public function testFlightProgramService(): void
     {
         // act
         $instance = app(FlightProgramService::class);
@@ -72,7 +72,7 @@ class AppServiceProviderTest extends TestCase
         $this->assertInstanceOf(FlightProgramService::class, $instance);
     }
 
-    public function testTimeService()
+    public function testTimeService(): void
     {
         // act
         $instance = app(TimeService::class);
@@ -81,7 +81,7 @@ class AppServiceProviderTest extends TestCase
         $this->assertInstanceOf(TimeService::class, $instance);
     }
 
-    public function testTerminateService()
+    public function testTerminateService(): void
     {
         // act
         $instance = app(TerminateService::class);

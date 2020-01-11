@@ -27,7 +27,7 @@ class TelemetryService
         $this->logger = $logger;
     }
 
-    public function send(array $variables)
+    public function send(array $variables): void
     {
         $this->logger->info("Telemetry::send", $variables);
 

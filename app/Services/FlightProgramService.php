@@ -100,7 +100,7 @@ class FlightProgramService
         } while ($time <= $maxTime);
     }
 
-    private function executeStarts(Collection $events)
+    private function executeStarts(Collection $events): void
     {
         if ($events->isEmpty()) {
             return;
@@ -121,7 +121,7 @@ class FlightProgramService
             ->toArray();
 
         if (sizeof($variables) !== $events->count()) {
-            $events->each(static function (Event $event) {
+            $events->each(static function (Event $event): void {
                 $event->execute();
             });
             return;
@@ -129,12 +129,12 @@ class FlightProgramService
 
         $data = $this->exchangeService->patch($variables);
 
-        $events->each(static function (Event $event) use ($data) {
+        $events->each(static function (Event $event) use ($data): void {
             $event->validateResult($data);
         });
     }
 
-    private function executeChecks(Collection $events, bool $isTelemetry = false)
+    private function executeChecks(Collection $events, bool $isTelemetry = false): void
     {
         if ($events->isEmpty() && !$isTelemetry) {
             return;
@@ -168,14 +168,14 @@ class FlightProgramService
             ]);
         }
 
-        $events->each(static function (Event $event) use ($data) {
+        $events->each(static function (Event $event) use ($data): void {
             $event->validateResult($data);
         });
 
         $this->updateCurrentVariables($data);
     }
 
-    private function updateCurrentVariables($data)
+    private function updateCurrentVariables($data): void
     {
         foreach ($data as $key => $value) {
             $this->variables[$key] = $value->value;

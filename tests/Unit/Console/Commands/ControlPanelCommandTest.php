@@ -11,12 +11,12 @@ use Tests\TestCase;
 
 class ControlPanelCommandTest extends TestCase
 {
-    public function testHandle()
+    public function testHandle(): void
     {
         // arrange
         $fileName = config('sputnik.flight_program');
         $json = $this->readFixture('flight_program/empty.json');
-        $this->mock(FlightProgramService::class, static function ($mock) use ($json, $fileName) {
+        $this->mock(FlightProgramService::class, static function ($mock) use ($json, $fileName): void {
             $mock->shouldReceive('load')->with()->with($fileName)->andReturn(FlightProgram::fromJson($json))->once()->getMock()
                  ->shouldReceive('run')->once();
         });
@@ -28,12 +28,12 @@ class ControlPanelCommandTest extends TestCase
             ->run();
     }
 
-    public function testHandleWithFileName()
+    public function testHandleWithFileName(): void
     {
         // arrange
         $fileName = 'tests/data/flight_program/empty.json';
         $json = $this->readFixture('flight_program/empty.json');
-        $this->mock(FlightProgramService::class, static function ($mock) use ($json, $fileName) {
+        $this->mock(FlightProgramService::class, static function ($mock) use ($json, $fileName): void {
             $mock
                 ->shouldReceive('load')->with()->with($fileName)->andReturn(FlightProgram::fromJson($json))->once()->getMock()
                 ->shouldReceive('run')->once();
@@ -46,12 +46,12 @@ class ControlPanelCommandTest extends TestCase
             ->run();
     }
 
-    public function testHandleWithFileNameAndTest()
+    public function testHandleWithFileNameAndTest(): void
     {
         // arrange
         $fileName = 'tests/data/flight_program/empty.json';
         $json = $this->readFixture('flight_program/empty.json');
-        $this->mock(FlightProgramService::class, static function ($mock) use ($json, $fileName) {
+        $this->mock(FlightProgramService::class, static function ($mock) use ($json, $fileName): void {
             $mock
                 ->shouldReceive('load')->with()->with($fileName)->andReturn(FlightProgram::fromJson($json))->once()->getMock()
                 ->shouldReceive('run')->once();

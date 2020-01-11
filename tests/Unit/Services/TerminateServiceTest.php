@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class TerminateServiceTest extends TestCase
 {
-    public function testTesting()
+    public function testTesting(): void
     {
         // arrange
         $exitCode = 11;

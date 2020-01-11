@@ -110,7 +110,7 @@ class FlightProgramServiceTest extends TestCase
      * @param int $startUp
      * @param array $operations
      */
-    public function testLoad(string $fileName, int $startUp, array $operations)
+    public function testLoad(string $fileName, int $startUp, array $operations): void
     {
         $flightProgram = $this->service->load($fileName);
 
@@ -138,7 +138,7 @@ class FlightProgramServiceTest extends TestCase
      * @param string $fileName
      * @param string $expectedMessage
      */
-    public function testLoadInvalid(string $fileName, string $expectedMessage)
+    public function testLoadInvalid(string $fileName, string $expectedMessage): void
     {
         self::expectException(InvalidFlightProgram::class);
         self::expectExceptionMessage($expectedMessage);
@@ -146,7 +146,7 @@ class FlightProgramServiceTest extends TestCase
         $this->service->load($fileName);
     }
 
-    public function testLoadPermissionDenied()
+    public function testLoadPermissionDenied(): void
     {
         $fileName = 'tests/data/flight_program/permission_denied.json';
 
@@ -161,7 +161,7 @@ class FlightProgramServiceTest extends TestCase
         }
     }
 
-    public function testRunEmpty()
+    public function testRunEmpty(): void
     {
         Carbon::setTestNow('2019-04-01 00:00:00');
 
@@ -191,7 +191,7 @@ class FlightProgramServiceTest extends TestCase
         $this->service->run($flightProgram);
     }
 
-    public function testRunOneRequest()
+    public function testRunOneRequest(): void
     {
         app()->instance(ExchangeService::class, $this->exchangeService);
 
@@ -252,7 +252,7 @@ class FlightProgramServiceTest extends TestCase
         $this->service->run($flightProgram);
     }
 
-    public function testRunTwoRequestsInOneSecond()
+    public function testRunTwoRequestsInOneSecond(): void
     {
         app()->instance(ExchangeService::class, $this->exchangeService);
 
@@ -311,7 +311,7 @@ class FlightProgramServiceTest extends TestCase
         $this->service->run($flightProgram);
     }
 
-    public function testRunTwoRequestsWithOneVariable()
+    public function testRunTwoRequestsWithOneVariable(): void
     {
         // assert
         self::expectException(InvalidCheck::class);
@@ -372,7 +372,7 @@ class FlightProgramServiceTest extends TestCase
         $this->service->run($flightProgram);
     }
 
-    public function testRunExchangeServiceGetException()
+    public function testRunExchangeServiceGetException(): void
     {
         // assert
         self::expectException(InvalidCheck::class);

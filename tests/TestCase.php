@@ -44,7 +44,7 @@ abstract class TestCase extends BaseTestCase
         return $history;
     }
 
-    protected static function assertLogEquals(string $expected, string $actual)
+    protected static function assertLogEquals(string $expected, string $actual): void
     {
         self::assertEquals(
             self::clearRandomElements(self::clearSlashes($expected)),
@@ -52,7 +52,7 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    protected static function assertEqualsArray(array $expected, array $actual)
+    protected static function assertEqualsArray(array $expected, array $actual): void
     {
         self::assertEquals(
             self::array2json($expected),

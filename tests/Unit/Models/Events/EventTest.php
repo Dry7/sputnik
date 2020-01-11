@@ -37,7 +37,7 @@ class EventTest extends TestCase
      * @param string $type
      * @param Operation $operation
      */
-    public function testCreateEvent(int $time, string $type, Operation $operation)
+    public function testCreateEvent(int $time, string $type, Operation $operation): void
     {
         // act
         $result = Event::createEvent($time, $type, $operation);
@@ -49,7 +49,7 @@ class EventTest extends TestCase
         self::assertEquals($operation, $result->getOperation());
     }
 
-    public function testCreateEventInvalidType()
+    public function testCreateEventInvalidType(): void
     {
         // assert
         self::expectException(InvalidEvent::class);
@@ -59,7 +59,7 @@ class EventTest extends TestCase
         Event::createEvent(1542014400, 'test', self::createOperation());
     }
 
-    public function testSetTime()
+    public function testSetTime(): void
     {
         // act
         $result = self::createEvent()->setTime(1542014433);
@@ -82,7 +82,7 @@ class EventTest extends TestCase
      * @param int|string $time
      * @param string $exception
      */
-    public function testSetTimeInvalid($time, string $exception)
+    public function testSetTimeInvalid($time, string $exception): void
     {
         // assert
         self::expectException($exception);
@@ -91,7 +91,7 @@ class EventTest extends TestCase
         self::createEvent()->setTime($time);
     }
 
-    public function testSetType()
+    public function testSetType(): void
     {
         // act
         $result = self::createEvent()
@@ -115,7 +115,7 @@ class EventTest extends TestCase
      * @param int|string $type
      * @param string $exception
      */
-    public function testSetTypeInvalid($type, string $exception)
+    public function testSetTypeInvalid($type, string $exception): void
     {
         // assert
         self::expectException($exception);
@@ -124,7 +124,7 @@ class EventTest extends TestCase
         self::createEvent()->setType($type);
     }
 
-    public function testSetOperation()
+    public function testSetOperation(): void
     {
         // arrange
         $operation = self::createOperation();
@@ -151,7 +151,7 @@ class EventTest extends TestCase
      * @param mixed $operation
      * @param string $exception
      */
-    public function testSetOperationInvalid($operation, string $exception)
+    public function testSetOperationInvalid($operation, string $exception): void
     {
         // assert
         self::expectException($exception);
@@ -160,7 +160,7 @@ class EventTest extends TestCase
         self::createEvent()->setOperation($operation);
     }
 
-    public function testToString()
+    public function testToString(): void
     {
         // arrange
         $operation = Operation::createOperation(

@@ -69,12 +69,12 @@ class LogFormatterTest extends TestCase
      * @param array $record
      * @param string $expected
      */
-    public function testFormat(array $record, string $expected)
+    public function testFormat(array $record, string $expected): void
     {
         $this->assertLogEquals($expected, $this->formatter->format($record));
     }
 
-    public function testFormatWarning()
+    public function testFormatWarning(): void
     {
         $record = [
             'message' => 'No matching handler found',
@@ -85,7 +85,7 @@ class LogFormatterTest extends TestCase
         $this->assertSame('', $this->formatter->format($record));
     }
 
-    public function testFormatBatch()
+    public function testFormatBatch(): void
     {
         $records = [
             [
