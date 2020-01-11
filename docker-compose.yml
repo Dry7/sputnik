@@ -1,6 +1,6 @@
 version: "3.6"
 services:
-  php:
+  php-fpm:
     build: ./docker/php
     volumes:
       - .:/var/www/sputnik
