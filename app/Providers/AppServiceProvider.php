@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sputnik\Providers;
 
 use GuzzleHttp\Client;

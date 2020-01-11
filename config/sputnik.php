@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'flight_program' => (string)env('FLIGHT_PROGRAM'),
     'exchange_uri' => (string)env('EXCHANGE_URI'),

@@ -44,7 +44,7 @@ class ErrorFormatterTest extends TestCase
                         ],
                     ],
                 ],
-                'expected' => '{"type":"error","timestamp":1362143709,"message":"No matching handler found {"post":1,"html":"<html></html>","array":{"string":"str"}}"}'. "\n",
+                'expected' => '{"type":"error","timestamp":1362143709,"message":"No matching handler found {"post":1,"html":"<html></html>","array":{"string":"str"}}"}' . "\n",
             ],
             [
                 'record' => [

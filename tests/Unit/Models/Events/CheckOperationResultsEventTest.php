@@ -177,6 +177,7 @@ class CheckOperationResultsEventTest extends TestCase
         // act
         $event->validateResult($data);
     }
+
     /**
      * @dataProvider validateResultInvalidDataProvider
      *
