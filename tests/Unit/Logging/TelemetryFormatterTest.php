@@ -5,13 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Logging;
 
 use Carbon\Carbon;
-use Monolog\Logger;
-use Sputnik\Exceptions\InvalidOperation;
 use Sputnik\Logging\ErrorFormatter;
-use Sputnik\Logging\LogFormatter;
 use Sputnik\Logging\TelemetryFormatter;
 use Tests\TestCase;
-use DateTime;
 
 class TelemetryFormatterTest extends TestCase
 {

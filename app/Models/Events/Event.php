@@ -198,11 +198,10 @@ abstract class Event
         } catch (BaseException $exception) {
             if ($this->getOperation()->critical()) {
                 throw $exception;
-            } else {
-                Log::warning($exception->getMessage(), $exception->getContext());
-
-                return false;
             }
+            Log::warning($exception->getMessage(), $exception->getContext());
+
+            return false;
         }
     }
 }

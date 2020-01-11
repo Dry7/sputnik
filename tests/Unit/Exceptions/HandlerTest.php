@@ -12,8 +12,6 @@ use Illuminate\Log\LogManager;
 use Psr\Log\LoggerInterface;
 use Sputnik\Exceptions\Handler;
 use Sputnik\Exceptions\InvalidEvent;
-use Sputnik\Exceptions\InvalidOperation;
-use Sputnik\Logging\ErrorFormatter;
 use Sputnik\Services\TerminateService;
 use Tests\TestCase;
 use Mockery;

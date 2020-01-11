@@ -93,7 +93,6 @@ class FlightProgram
         }
 
         $this->startUp = $value;
-//        $this->startUp = now()->timestamp;
 
         return $this;
     }

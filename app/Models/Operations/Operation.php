@@ -193,9 +193,8 @@ abstract class Operation
     {
         if ($this->value >= static::MIN_VALUE && $this->value <= static::MAX_VALUE) {
             return true;
-        } else {
-            throw InvalidOperation::value(['operation' => $this]);
         }
+        throw InvalidOperation::value(['operation' => $this]);
     }
 
     /**

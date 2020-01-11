@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Sputnik\Logging;
 
-use Carbon\Carbon;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Logger;
 use Sputnik\Exceptions\BaseException;
