@@ -124,7 +124,7 @@ class ControlPanelCommandTest extends TestCase
 
         Carbon::setTestNow($data['date']);
 
-        $responses = collect($data['requests'] ?? [])->map(function ($html) {
+        $responses = collect($data['requests'] ?? [])->map(static function ($html) {
             return new Response(HttpResponse::HTTP_OK, [], $html);
         })->toArray();
 

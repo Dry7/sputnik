@@ -34,7 +34,7 @@ class CheckOperationResultsEventTest extends TestCase
             ->setTime(1555016400)
             ->setOperation($operation);
 
-        $this->mock(ExchangeService::class, function ($mock) use ($operation, $data) {
+        $this->mock(ExchangeService::class, static function ($mock) use ($operation, $data) {
             $mock->shouldReceive('get')
                 ->with([$operation->variable()])
                 ->andReturn($data)
@@ -56,7 +56,7 @@ class CheckOperationResultsEventTest extends TestCase
         // arrange
         $event = self::createEvent(Event::TYPE_CHECK_OPERATION_RESULTS);
 
-        $this->mock(ExchangeService::class, function ($mock) use ($event) {
+        $this->mock(ExchangeService::class, static function ($mock) use ($event) {
             $mock->shouldReceive('get')
                 ->with([$event->getOperation()->variable()])
                 ->andThrow(RequestException::timeout())

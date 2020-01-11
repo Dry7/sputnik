@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $guzzleHandleStack = function () {
+        $guzzleHandleStack = static function () {
             return HandlerStack::create();
         };
 
@@ -36,22 +36,22 @@ class AppServiceProvider extends ServiceProvider
             $this->app->bind(HandlerStack::class, $guzzleHandleStack);
         }
 
-        $this->app->singleton(Client::class, function () {
+        $this->app->singleton(Client::class, static function () {
             return new Client([
                 'handler' => app(HandlerStack::class),
-                'on_stats' => function (TransferStats $stats) {
+                'on_stats' => static function (TransferStats $stats) {
                     Log::info('Request ' . $stats->getEffectiveUri(), $stats->getHandlerStats());
                 }
             ]);
         });
-        $this->app->singleton(ExchangeService::class, function (Application $app) {
+        $this->app->singleton(ExchangeService::class, static function (Application $app) {
             return new ExchangeService(
                 $app[Client::class],
                 config('sputnik.exchange_uri'),
                 config('sputnik.exchange_timeout')
             );
         });
-        $this->app->singleton(FlightProgramService::class, function (Application $app) {
+        $this->app->singleton(FlightProgramService::class, static function (Application $app) {
             return new FlightProgramService(
                 $app[TelemetryService::class],
                 $app[ExchangeService::class],
@@ -60,10 +60,10 @@ class AppServiceProvider extends ServiceProvider
                 config('sputnik.telemetry_freq')
             );
         });
-        $this->app->singleton(TimeService::class, function (Application $app) {
+        $this->app->singleton(TimeService::class, static function (Application $app) {
             return new TimeService($app->runningUnitTests());
         });
-        $this->app->singleton(TerminateService::class, function (Application $app) {
+        $this->app->singleton(TerminateService::class, static function (Application $app) {
             return new TerminateService($app[LogManager::class]);
         });
     }

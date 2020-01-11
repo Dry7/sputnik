@@ -35,6 +35,15 @@ $rules = [
     'no_whitespace_in_blank_line' => true,
     'not_operator_with_space' => false,
     'self_accessor' => true,
+    'short_scalar_cast' => true,
+    'single_blank_line_before_namespace' => true,
+    'space_after_semicolon' => true,
+    'standardize_increment' => true,
+    'static_lambda' => true,
+    'strict_comparison' => true,
+    'ternary_operator_spaces' => true,
+    'ternary_to_null_coalescing' => true,
+    'void_return' => true,
 ];
 
 $finder = PhpCsFixer\Finder::create()

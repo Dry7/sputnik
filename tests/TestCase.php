@@ -93,7 +93,7 @@ abstract class TestCase extends BaseTestCase
 
     private static function array2json(array $items)
     {
-        return Utils::json(array_map(function ($item) {
+        return Utils::json(array_map(static function ($item) {
             return (string)$item;
         }, $items));
     }

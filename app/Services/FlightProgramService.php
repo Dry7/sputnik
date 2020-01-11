@@ -115,13 +115,13 @@ class FlightProgramService
 
         // Reduce the number of requests
         $variables = $events
-            ->mapWithKeys(function (Event $event) {
+            ->mapWithKeys(static function (Event $event) {
                 return [$event->getOperation()->variable() => $event->getOperation()->value()];
             })
             ->toArray();
 
         if (sizeof($variables) !== $events->count()) {
-            $events->each(function (Event $event) {
+            $events->each(static function (Event $event) {
                 $event->execute();
             });
             return;
@@ -129,7 +129,7 @@ class FlightProgramService
 
         $data = $this->exchangeService->patch($variables);
 
-        $events->each(function (Event $event) use ($data) {
+        $events->each(static function (Event $event) use ($data) {
             $event->validateResult($data);
         });
     }
@@ -152,7 +152,7 @@ class FlightProgramService
 
         // Reduce the number of requests
         $variables = $events
-            ->map(function (Event $event) {
+            ->map(static function (Event $event) {
                 return $event->getOperation()->variable();
             })
             ->merge($isTelemetry ? TelemetryService::OPERATIONS : [])
@@ -168,7 +168,7 @@ class FlightProgramService
             ]);
         }
 
-        $events->each(function (Event $event) use ($data) {
+        $events->each(static function (Event $event) use ($data) {
             $event->validateResult($data);
         });
 
@@ -194,7 +194,7 @@ class FlightProgramService
     private function getEventIDs(Collection $events): string
     {
         return $events
-            ->map(function (Event $event) {
+            ->map(static function (Event $event) {
                 return $event->getOperation()->getID();
             })
             ->implode(', ');

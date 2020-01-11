@@ -30,7 +30,7 @@ class StartOperationEventTest extends TestCase
             ->setTime(1555016400)
             ->setOperation($operation);
 
-        $this->mock(ExchangeService::class, function ($mock) use ($operation, $data) {
+        $this->mock(ExchangeService::class, static function ($mock) use ($operation, $data) {
             $mock->shouldReceive('patch')
                 ->with([$operation->variable() => $operation->value()])
                 ->andReturn($data)

@@ -36,7 +36,7 @@ class TelemetryService
 
     private function createMessage(array $variables)
     {
-        return http_build_query(collect(self::OPERATIONS)->mapWithKeys(function ($item) use ($variables) {
+        return http_build_query(collect(self::OPERATIONS)->mapWithKeys(static function ($item) use ($variables) {
             return [$item => $variables[$item]];
         })->toArray());
     }
