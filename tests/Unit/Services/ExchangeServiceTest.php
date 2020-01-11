@@ -10,6 +10,7 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Mockery\Mock;
+use Sputnik\Exceptions\RequestException;
 use Sputnik\Services\ExchangeService;
 use Tests\TestCase;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -43,11 +44,11 @@ class ExchangeServiceTest extends TestCase
         self::assertEquals($data, $result);
     }
 
-    /**
-     * @expectedException Sputnik\Exceptions\RequestException
-     */
     public function testGetJsonException()
     {
+        // assert
+        self::expectException(RequestException::class);
+
         // arrange
         $json = '{2"orientationZenithAngleDeg":{"set":185,"value":185},"orientationAzimuthAngleDeg":{"set":5,"value":5}}';
 
@@ -65,11 +66,11 @@ class ExchangeServiceTest extends TestCase
         $service->get(['orientationZenithAngleDeg', 'orientationAzimuthAngleDeg']);
     }
 
-    /**
-     * @expectedException Sputnik\Exceptions\RequestException
-     */
     public function testGetConnectException()
     {
+        // assert
+        self::expectException(RequestException::class);
+
         // arrange
         /** @var Client|Mock $client */
         $client = Mockery::mock(Client::class)

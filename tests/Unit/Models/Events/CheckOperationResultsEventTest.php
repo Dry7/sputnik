@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Models\Events;
 
 use Mockery\MockInterface;
+use Sputnik\Exceptions\InvalidCheck;
 use Sputnik\Exceptions\RequestException;
 use Sputnik\Models\Events\CheckOperationResultsEvent;
 use Sputnik\Models\Events\Event;
@@ -47,11 +48,11 @@ class CheckOperationResultsEventTest extends TestCase
         $stub->shouldHaveReceived('validateResult')->with($data)->once();
     }
 
-    /**
-     * @expectedException Sputnik\Exceptions\InvalidCheck
-     */
     public function testExecuteException()
     {
+        // assert
+        self::expectException(InvalidCheck::class);
+
         // arrange
         $event = self::createEvent(Event::TYPE_CHECK_OPERATION_RESULTS);
 

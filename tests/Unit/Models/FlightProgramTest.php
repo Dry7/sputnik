@@ -6,6 +6,7 @@ namespace Tests\Unit\Models;
 
 use Carbon\Carbon;
 use Generator;
+use Sputnik\Exceptions\InvalidFlightProgram;
 use Sputnik\Models\Events\Event;
 use Sputnik\Models\FlightProgram;
 use Sputnik\Models\Operations\Operation;
@@ -46,12 +47,12 @@ class FlightProgramTest extends TestCase
         ], $this->iterator2array($result->getOperations()));
     }
 
-    /**
-     * @expectedException Sputnik\Exceptions\InvalidFlightProgram
-     * @expectedExceptionMessage Invalid flight program: json
-     */
     public function testFromJsonInvalidJson()
     {
+        // assert
+        self::expectException(InvalidFlightProgram::class);
+        self::expectExceptionMessage('Invalid flight program: json');
+
         // arrange
         $json = '{2"startUp": 1555016400,"operations":[]}';
 
@@ -79,12 +80,13 @@ class FlightProgramTest extends TestCase
      * @dataProvider fromJsonInvalidStartUpDataProvider
      *
      * @param string $json
-     *
-     * @expectedException Sputnik\Exceptions\InvalidFlightProgram
-     * @expectedExceptionMessage Invalid flight program: startUp
      */
     public function testFromJsonInvalidStartUp(string $json)
     {
+        // assert
+        self::expectException(InvalidFlightProgram::class);
+        self::expectExceptionMessage('Invalid flight program: startUp');
+
         // act
         FlightProgram::fromJson($json);
     }
@@ -99,15 +101,18 @@ class FlightProgramTest extends TestCase
     }
 
     /**
+     * @test
+     *
      * @dataProvider fromJsonInvalidOperationsDataProvider
      *
      * @param string $json
-     *
-     * @expectedException Sputnik\Exceptions\InvalidFlightProgram
-     * @expectedExceptionMessage Invalid flight program: operations
      */
     public function testFromJsonInvalidOperations(string $json)
     {
+        // assert
+        self::expectException(InvalidFlightProgram::class);
+        self::expectExceptionMessage('Invalid flight program: operations');
+
         // act
         FlightProgram::fromJson($json);
     }

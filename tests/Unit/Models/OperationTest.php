@@ -50,12 +50,12 @@ class OperationTest extends TestCase
         self::assertInstanceOf($class, $result);
     }
 
-    /**
-     * @expectedException Sputnik\Exceptions\InvalidOperation
-     * @expectedExceptionMessage Invalid operation: variable
-     */
     public function testCreateOperationInvalidType()
     {
+        // assert
+        self::expectException(InvalidOperation::class);
+        self::expectExceptionMessage('Invalid operation: variable');
+
         // act
         Operation::createOperation(1, 0, 'test', 20, 1);
     }
@@ -105,11 +105,12 @@ class OperationTest extends TestCase
      * @dataProvider createOperationFromJsonObjectInvalidDataProvider
      *
      * @param array $data
-     *
-     * @expectedException Sputnik\Exceptions\InvalidOperation
      */
     public function testCreateOperationFromJsonObjectInvalid(array $data)
     {
+        // assert
+        self::expectException(InvalidOperation::class);
+
         Operation::createOperationFromJsonObject((object)$data);
     }
 

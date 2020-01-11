@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Date;
 use Mockery\Mock;
+use Sputnik\Exceptions\InvalidCheck;
 use Sputnik\Exceptions\InvalidFlightProgram;
 use Sputnik\Exceptions\RequestException;
 use Sputnik\Models\Operations\Operation;
@@ -310,11 +311,11 @@ class FlightProgramServiceTest extends TestCase
         $this->service->run($flightProgram);
     }
 
-    /**
-     * @expectedException Sputnik\Exceptions\InvalidCheck
-     */
     public function testRunTwoRequestsWithOneVariable()
     {
+        // assert
+        self::expectException(InvalidCheck::class);
+
         app()->instance(ExchangeService::class, $this->exchangeService);
 
         $flightProgram = $this->service->load('tests/data/flight_program/two_requests_with_one_variable.json');
@@ -371,11 +372,11 @@ class FlightProgramServiceTest extends TestCase
         $this->service->run($flightProgram);
     }
 
-    /**
-     * @expectedException Sputnik\Exceptions\InvalidCheck
-     */
     public function testRunExchangeServiceGetException()
     {
+        // assert
+        self::expectException(InvalidCheck::class);
+
         Carbon::setTestNow('2019-04-01 00:00:00');
 
         $flightProgram = $this->service->load('tests/data/flight_program/empty.json');

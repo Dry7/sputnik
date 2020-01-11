@@ -49,12 +49,12 @@ class EventTest extends TestCase
         self::assertEquals($operation, $result->getOperation());
     }
 
-    /**
-     * @expectedException Sputnik\Exceptions\InvalidEvent
-     * @expectedExceptionMessage Invalid event: type
-     */
     public function testCreateEventInvalidType()
     {
+        // assert
+        self::expectException(InvalidEvent::class);
+        self::expectExceptionMessage('Invalid event: type');
+
         // act
         Event::createEvent(1542014400, 'test', self::createOperation());
     }
