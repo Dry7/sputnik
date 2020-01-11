@@ -44,5 +44,4 @@ class LogFormatter implements FormatterInterface
 
         return $records;
     }
-
 }

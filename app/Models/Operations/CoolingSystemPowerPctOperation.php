@@ -13,5 +13,4 @@ class CoolingSystemPowerPctOperation extends Operation
     {
         parent::__construct($id, $deltaT, self::COOLING_SYSTEM_POWER_PCT, $value, $timeout, $critical);
     }
-
 }

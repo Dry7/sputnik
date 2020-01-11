@@ -38,7 +38,8 @@ class ExchangeService
     {
         Log::info('ExchangeService::get', $variables);
 
-        $response = $this->request(Request::METHOD_GET,
+        $response = $this->request(
+            Request::METHOD_GET,
             $this->uri . self::ENDPOINT . '/' . implode(',', $variables),
             $this->clientOptions
         );
@@ -69,7 +70,8 @@ class ExchangeService
     private function request(string $method, string $url, array $options = [])
     {
         try {
-            return $this->client->request($method,
+            return $this->client->request(
+                $method,
                 $url,
                 $options
             );

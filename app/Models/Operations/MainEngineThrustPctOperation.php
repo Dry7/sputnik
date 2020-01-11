@@ -13,5 +13,4 @@ class MainEngineThrustPctOperation extends Operation
     {
         parent::__construct($id, $deltaT, self::MAIN_ENGINE_THRUST_PCT, $value, $timeout, $critical);
     }
-
 }

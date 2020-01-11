@@ -38,5 +38,4 @@ class ErrorFormatter implements FormatterInterface
 
         return $records;
     }
-
 }

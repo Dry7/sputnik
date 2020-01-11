@@ -161,7 +161,8 @@ EOF
         ]);
         $process->run();
 
-        self::assertLogEquals(<<<EOF
+        self::assertLogEquals(
+            <<<EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/empty.json"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
@@ -175,7 +176,8 @@ EOF
 {"type":"values","timestamp":1554076800,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
 
 EOF
-            , $process->getOutput()
+            ,
+            $process->getOutput()
         );
         self::assertLogEquals('', $process->getErrorOutput());
         self::assertEquals(0, $process->getExitCode());
@@ -189,7 +191,8 @@ EOF
         ]);
         $process->run();
 
-        self::assertLogEquals(<<<EOF
+        self::assertLogEquals(
+            <<<EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/empty.json"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
@@ -201,13 +204,16 @@ EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"TerminateService::exit {"code":12}"}
 
 EOF
-            , $process->getOutput()
+            ,
+            $process->getOutput()
         );
-        self::assertLogEquals(<<<EOF
+        self::assertLogEquals(
+            <<<EOF
 {"type":"error","timestamp":1554076800,"message":"Invalid exchangeService {"message":"Request timeout","context":{"method":"GET","url":"https://exchange.internal/api/v12/settings/orientationAzimuthAngleDeg,orientationZenithAngleDeg,vesselAltitudeM,vesselSpeedMps,mainEngineFuelPct,temperatureInternalDeg","options":{"timeout":0.1}}}"}
 
 EOF
-            , $process->getErrorOutput()
+            ,
+            $process->getErrorOutput()
         );
         self::assertEquals(12, $process->getExitCode());
     }
@@ -220,7 +226,8 @@ EOF
         ]);
         $process->run();
 
-        self::assertLogEquals(<<<EOF
+        self::assertLogEquals(
+            <<<EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
@@ -241,7 +248,8 @@ EOF
 {"time":"2019-04-01T00:00:02Z","type":"info","message":"TerminateService::exit {"code":11}"}
 
 EOF
-            , $process->getOutput()
+            ,
+            $process->getOutput()
         );
         self::assertLogEquals(<<<EOF
 {"type":"error","timestamp":1554076802,"message":"ExchangeService: invalid json {"html":"not json"}"}
@@ -259,7 +267,8 @@ EOF
         ]);
         $process->run();
 
-        self::assertLogEquals(<<<EOF
+        self::assertLogEquals(
+            <<<EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
@@ -280,7 +289,8 @@ EOF
 {"time":"2019-04-01T00:00:02Z","type":"info","message":"TerminateService::exit {"code":11}"}
 
 EOF
-            , $process->getOutput()
+            ,
+            $process->getOutput()
         );
         self::assertLogEquals(<<<EOF
 {"type":"error","timestamp":1554076802,"message":"Event: failed check {"event":"{"class":"Sputnik\Models\Events\StartOperationEvent","type":"start_operation","operation":"{"class":"Sputnik\Models\Operations\CoolingSystemPowerPctOperation","id":1,"deltaT":2,"variable":"coolingSystemPowerPct","value":30,"timeout":2,"critical":true}"}","data":"{"coolingSystemPowerPct":{"set":20,"value":20}}"}"}
@@ -298,7 +308,8 @@ EOF
         ]);
         $process->run();
 
-        self::assertLogEquals(<<<EOF
+        self::assertLogEquals(
+            <<<EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/wrong_patch_not_critical.json"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
@@ -334,7 +345,8 @@ EOF
 {"time":"2019-04-01T00:00:06Z","type":"info","message":"ExchangeService::parseResult {"html":"{"radioPowerDbm":{"set":50,"value":50}}"}"}
 
 EOF
-            , $process->getOutput()
+            ,
+            $process->getOutput()
         );
 
         self::assertLogEquals(<<<EOF
@@ -353,7 +365,8 @@ EOF
         ]);
         $process->run();
 
-        self::assertLogEquals(<<<EOF
+        self::assertLogEquals(
+            <<<EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
@@ -374,7 +387,8 @@ EOF
 {"time":"2019-04-01T00:00:02Z","type":"info","message":"TerminateService::exit {"code":11}"}
 
 EOF
-            , $process->getOutput()
+            ,
+            $process->getOutput()
         );
         self::assertLogEquals(<<<EOF
 {"type":"error","timestamp":1554076802,"message":"Event: failed check {"type":"start_operation","event":"{"class":"Sputnik\Models\Events\StartOperationEvent","type":"start_operation","operation":"{"class":"Sputnik\Models\Operations\CoolingSystemPowerPctOperation","id":1,"deltaT":2,"variable":"coolingSystemPowerPct","value":30,"timeout":2,"critical":true}"}","data":"{"coolingSystemPowerPct":{"set":30,"value":"test"}}"}"}
@@ -567,7 +581,8 @@ EOF
         ]);
         $process->run();
 
-        self::assertLogEquals(<<<EOF
+        self::assertLogEquals(
+            <<<EOF
 {"time":"2019-04-11T21:00:00Z","type":"info","message":"Let`s go"}
 {"time":"2019-04-11T21:00:00Z","type":"info","message":"Filename: tests/data/flight_program/two_request_in_one_second.json"}
 {"time":"2019-04-11T21:00:00Z","type":"info","message":"Start time: 1555016400"}
@@ -592,7 +607,8 @@ EOF
 {"time":"2019-04-11T21:00:03Z","type":"info","message":"ExchangeService::parseResult {"html":"{"coolingSystemPowerPct":{"set":30,"value":30},"radioPowerDbm":{"set":50,"value":50}}"}"}
 
 EOF,
-            $process->getOutput());
+            $process->getOutput()
+        );
         self::assertLogEquals('', $process->getErrorOutput());
         self::assertEquals(0, $process->getExitCode());
     }
@@ -606,7 +622,8 @@ EOF,
         ]);
         $process->run();
 
-        self::assertLogEquals(<<<EOF
+        self::assertLogEquals(
+            <<<EOF
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Let`s go"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/one_request.json"}
 {"time":"2019-04-01T00:00:00Z","type":"info","message":"Start time: 1554076800"}
@@ -652,7 +669,8 @@ EOF,
 {"type":"values","timestamp":1554076804,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
 
 EOF,
-            $process->getOutput());
+            $process->getOutput()
+        );
         self::assertLogEquals('', $process->getErrorOutput());
         self::assertEquals(0, $process->getExitCode());
     }
@@ -665,7 +683,8 @@ EOF,
         ]);
         $process->run();
 
-        self::assertLogEquals(<<<EOF
+        self::assertLogEquals(
+            <<<EOF
 {"time":"2020-04-01T00:00:00Z","type":"info","message":"Let`s go"}
 {"time":"2020-04-01T00:00:00Z","type":"info","message":"Filename: tests/data/flight_program/default.json"}
 {"time":"2020-04-01T00:00:00Z","type":"info","message":"Start time: 1585699200"}
@@ -679,7 +698,8 @@ EOF,
 {"type":"values","timestamp":1585699200,"message":"orientationAzimuthAngleDeg=5&orientationZenithAngleDeg=185&vesselAltitudeM=5&vesselSpeedMps=5&mainEngineFuelPct=5&temperatureInternalDeg=5"}
 
 EOF
-            , $process->getOutput()
+            ,
+            $process->getOutput()
         );
         self::assertLogEquals('', $process->getErrorOutput());
         self::assertEquals(0, $process->getExitCode());

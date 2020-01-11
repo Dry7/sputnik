@@ -13,5 +13,4 @@ class OrientationZenithAngleDegOperation extends Operation
     {
         parent::__construct($id, $deltaT, self::ORIENTATION_ZENITH_ANGLE_DEG, $value, $timeout, $critical);
     }
-
 }

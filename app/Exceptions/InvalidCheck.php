@@ -8,7 +8,7 @@ use Throwable;
 
 class InvalidCheck extends BaseException
 {
-    function __construct($message = "", $context = [], $code = self::INVALID_EXCHANGE_RESPONSE, Throwable $previous = null)
+    public function __construct($message = "", $context = [], $code = self::INVALID_EXCHANGE_RESPONSE, Throwable $previous = null)
     {
         $this->setContext($context);
 

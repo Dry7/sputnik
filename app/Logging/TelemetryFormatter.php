@@ -32,5 +32,4 @@ class TelemetryFormatter implements FormatterInterface
 
         return $records;
     }
-
 }

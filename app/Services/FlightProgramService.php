@@ -38,8 +38,7 @@ class FlightProgramService
         TimeService $timeService,
         LogManager $logger,
         int $telemetryFreq
-    )
-    {
+    ) {
         $this->telemetryService = $telemetryService;
         $this->exchangeService = $exchangeService;
         $this->timeService = $timeService;
@@ -153,7 +152,9 @@ class FlightProgramService
 
         // Reduce the number of requests
         $variables = $events
-            ->map(function (Event $event) { return $event->getOperation()->variable(); })
+            ->map(function (Event $event) {
+                return $event->getOperation()->variable();
+            })
             ->merge($isTelemetry ? TelemetryService::OPERATIONS : [])
             ->unique()
             ->toArray();
@@ -193,7 +194,9 @@ class FlightProgramService
     private function getEventIDs(Collection $events): string
     {
         return $events
-            ->map(function (Event $event) { return $event->getOperation()->getID(); })
+            ->map(function (Event $event) {
+                return $event->getOperation()->getID();
+            })
             ->implode(', ');
     }
 }

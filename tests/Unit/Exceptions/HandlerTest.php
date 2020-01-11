@@ -59,7 +59,7 @@ class HandlerTest extends TestCase
         /** @var Request $request */
         $request = new Request();
         $request->headers->add(['X-Requested-With' => 'XMLHttpRequest']);
-        $exception = new Exception('message', 100);;
+        $exception = new Exception('message', 100);
 
         // act
         /** @var Response $result */

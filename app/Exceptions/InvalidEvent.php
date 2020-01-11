@@ -8,7 +8,7 @@ use Throwable;
 
 class InvalidEvent extends BaseException
 {
-    function __construct($message = "", $context = [], $code = self::EVENT, Throwable $previous = null)
+    public function __construct($message = "", $context = [], $code = self::EVENT, Throwable $previous = null)
     {
         $this->setContext($context);
 
