@@ -40,9 +40,7 @@ class TelemetryServiceTest extends TestCase
 
         // assert
         $this->logging->shouldReceive('info')->with("Telemetry::send", $variables);
-        $this->logging->shouldReceive('channel')->with('telemetry')->andReturnUsing(static function () use ($message) {
-            return Mockery::mock(LogManager::class)->shouldReceive('info')->with($message)->getMock();
-        });
+        $this->logging->shouldReceive('channel')->with('telemetry')->andReturnUsing(static fn () => Mockery::mock(LogManager::class)->shouldReceive('info')->with($message)->getMock());
 
         // act
         $this->service->send($variables);

@@ -124,9 +124,9 @@ class ControlPanelCommandTest extends TestCase
 
         Carbon::setTestNow($data['date']);
 
-        $responses = collect($data['requests'] ?? [])->map(static function ($html) {
-            return new Response(HttpResponse::HTTP_OK, [], $html);
-        })->toArray();
+        $responses = collect($data['requests'] ?? [])
+            ->map(static fn ($html) => new Response(HttpResponse::HTTP_OK, [], $html))
+            ->toArray();
 
         if (!empty($responses)) {
             self::mockHttpHistory(...$responses);

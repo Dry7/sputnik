@@ -18,9 +18,7 @@ class TimeServiceTest extends TestCase
         $service = new TimeService(true);
 
         // assert
-        Date::shouldReceive('now')->andReturnUsing(static function () use ($date) {
-            return Date::shouldReceive('addSeconds')->with(1)->andReturn($date)->getMock();
-        });
+        Date::shouldReceive('now')->andReturnUsing(static fn () => Date::shouldReceive('addSeconds')->with(1)->andReturn($date)->getMock());
         Date::shouldReceive('setTestNow')->with($date);
 
         // act

@@ -14,23 +14,12 @@ use Sputnik\Models\FlightProgram;
 
 class FlightProgramService
 {
-    /** @var TelemetryService */
-    private $telemetryService;
-
-    /** @var ExchangeService */
-    private $exchangeService;
-
-    /** @var TimeService */
-    private $timeService;
-
-    /** @var LogManager */
-    private $logger;
-
-    /** @var int */
-    private $telemetryFreq;
-
-    /** @var array */
-    private $variables;
+    private TelemetryService $telemetryService;
+    private ExchangeService $exchangeService;
+    private TimeService $timeService;
+    private LogManager $logger;
+    private int $telemetryFreq;
+    private array $variables;
 
     public function __construct(
         TelemetryService $telemetryService,
@@ -46,11 +35,6 @@ class FlightProgramService
         $this->telemetryFreq = $telemetryFreq;
     }
 
-    /**
-     * @param string $fileName
-     *
-     * @return FlightProgram
-     */
     public function load(string $fileName): FlightProgram
     {
         if (!file_exists($fileName)) {
@@ -61,9 +45,7 @@ class FlightProgramService
             throw InvalidFlightProgram::permissionDenied(['fileName' => $fileName]);
         }
 
-        $flightProgram = FlightProgram::fromJson(file_get_contents($fileName));
-
-        return $flightProgram;
+        return FlightProgram::fromJson(file_get_contents($fileName));
     }
 
     public function run(FlightProgram $flightProgram): void
@@ -115,23 +97,17 @@ class FlightProgramService
 
         // Reduce the number of requests
         $variables = $events
-            ->mapWithKeys(static function (Event $event) {
-                return [$event->getOperation()->variable() => $event->getOperation()->value()];
-            })
+            ->mapWithKeys(static fn (Event $event) => [$event->getOperation()->variable() => $event->getOperation()->value()])
             ->toArray();
 
         if (sizeof($variables) !== $events->count()) {
-            $events->each(static function (Event $event): void {
-                $event->execute();
-            });
+            $events->each(static fn (Event $event) => $event->execute());
             return;
         }
 
         $data = $this->exchangeService->patch($variables);
 
-        $events->each(static function (Event $event) use ($data): void {
-            $event->validateResult($data);
-        });
+        $events->each(static fn (Event $event) => $event->validateResult($data));
     }
 
     private function executeChecks(Collection $events, bool $isTelemetry = false): void
@@ -152,9 +128,7 @@ class FlightProgramService
 
         // Reduce the number of requests
         $variables = $events
-            ->map(static function (Event $event) {
-                return $event->getOperation()->variable();
-            })
+            ->map(static fn (Event $event): string => $event->getOperation()->variable())
             ->merge($isTelemetry ? TelemetryService::OPERATIONS : [])
             ->unique()
             ->toArray();
@@ -168,9 +142,7 @@ class FlightProgramService
             ]);
         }
 
-        $events->each(static function (Event $event) use ($data): void {
-            $event->validateResult($data);
-        });
+        $events->each(static fn (Event $event) => $event->validateResult($data));
 
         $this->updateCurrentVariables($data);
     }
@@ -194,9 +166,7 @@ class FlightProgramService
     private function getEventIDs(Collection $events): string
     {
         return $events
-            ->map(static function (Event $event) {
-                return $event->getOperation()->getID();
-            })
+            ->map(static fn (Event $event) => $event->getOperation()->getID())
             ->implode(', ');
     }
 }

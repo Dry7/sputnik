@@ -26,9 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $guzzleHandleStack = static function () {
-            return HandlerStack::create();
-        };
+        $guzzleHandleStack = static fn () => HandlerStack::create();
 
         if ($this->app->runningUnitTests()) {
             $this->app->singleton(HandlerStack::class, $guzzleHandleStack);
@@ -36,35 +34,26 @@ class AppServiceProvider extends ServiceProvider
             $this->app->bind(HandlerStack::class, $guzzleHandleStack);
         }
 
-        $this->app->singleton(Client::class, static function () {
-            return new Client([
+        $this->app->singleton(Client::class, static fn () => new Client([
                 'handler' => app(HandlerStack::class),
-                'on_stats' => static function (TransferStats $stats): void {
-                    Log::info('Request ' . $stats->getEffectiveUri(), $stats->getHandlerStats());
-                }
-            ]);
-        });
-        $this->app->singleton(ExchangeService::class, static function (Application $app) {
-            return new ExchangeService(
+                'on_stats' => static fn (TransferStats $stats) => Log::info('Request ' . $stats->getEffectiveUri(), $stats->getHandlerStats())
+            ])
+        );
+        $this->app->singleton(ExchangeService::class, static fn (Application $app) => new ExchangeService(
                 $app[Client::class],
                 config('sputnik.exchange_uri'),
                 config('sputnik.exchange_timeout')
-            );
-        });
-        $this->app->singleton(FlightProgramService::class, static function (Application $app) {
-            return new FlightProgramService(
+            )
+        );
+        $this->app->singleton(FlightProgramService::class, static fn (Application $app) => new FlightProgramService(
                 $app[TelemetryService::class],
                 $app[ExchangeService::class],
                 $app[TimeService::class],
                 $app[LogManager::class],
                 config('sputnik.telemetry_freq')
-            );
-        });
-        $this->app->singleton(TimeService::class, static function (Application $app) {
-            return new TimeService($app->runningUnitTests());
-        });
-        $this->app->singleton(TerminateService::class, static function (Application $app) {
-            return new TerminateService($app[LogManager::class]);
-        });
+            )
+        );
+        $this->app->singleton(TimeService::class, static fn (Application $app) => new TimeService($app->runningUnitTests()));
+        $this->app->singleton(TerminateService::class, static fn (Application $app) => new TerminateService($app[LogManager::class]));
     }
 }
