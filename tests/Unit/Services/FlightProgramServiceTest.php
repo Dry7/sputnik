@@ -23,8 +23,7 @@ class FlightProgramServiceTest extends TestCase
 {
     private const TELEMETRY_FREQUENCY = 10;
 
-    /** @var FlightProgramService */
-    private $service;
+    private FlightProgramService $service;
 
     /** @var TelemetryService|Mock */
     private $telemetryService;

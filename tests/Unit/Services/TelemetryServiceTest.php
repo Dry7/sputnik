@@ -11,8 +11,7 @@ use Mockery;
 
 class TelemetryServiceTest extends TestCase
 {
-    /** @var TelemetryService */
-    private $service;
+    private TelemetryService $service;
 
     /** @var LogManager|Mockery\Mock */
     private $logging;

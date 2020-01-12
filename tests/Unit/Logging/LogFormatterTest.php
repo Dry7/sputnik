@@ -13,8 +13,7 @@ use Tests\TestCase;
 
 class LogFormatterTest extends TestCase
 {
-    /** @var ErrorFormatter */
-    private $formatter;
+    private LogFormatter $formatter;
 
     public function setUp(): void
     {

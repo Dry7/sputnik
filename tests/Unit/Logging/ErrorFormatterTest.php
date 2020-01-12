@@ -11,8 +11,7 @@ use Tests\TestCase;
 
 class ErrorFormatterTest extends TestCase
 {
-    /** @var ErrorFormatter */
-    private $formatter;
+    private ErrorFormatter $formatter;
 
     public function setUp(): void
     {

@@ -11,8 +11,7 @@ use Tests\TestCase;
 
 class TelemetryFormatterTest extends TestCase
 {
-    /** @var ErrorFormatter */
-    private $formatter;
+    private TelemetryFormatter $formatter;
 
     public function setUp(): void
     {

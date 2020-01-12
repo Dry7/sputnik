@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Date;
 
 class TimeService
 {
-    /** @var bool */
-    private $testing;
+    private bool $testing;
 
     public function __construct(bool $testing = false)
     {

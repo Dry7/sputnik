@@ -12,14 +12,10 @@ use Sputnik\Models\Operations\Operation;
 
 class FlightProgram
 {
-    /** @var int */
-    private $startUp;
-
     /** @var Operation[]|Iterator */
     private $operations;
-
-    /** @var array */
-    private $schedule;
+    private int $startUp;
+    private array $schedule;
 
     public function __construct(int $startUp, Iterator $operations)
     {

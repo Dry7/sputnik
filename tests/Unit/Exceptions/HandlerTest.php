@@ -21,9 +21,7 @@ class HandlerTest extends TestCase
 {
     /** @var Container|Mockery\Mock */
     private $container;
-
-    /** @var Handler */
-    private $handler;
+    private Handler $handler;
 
     public function setUp(): void
     {

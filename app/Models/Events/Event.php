@@ -23,14 +23,9 @@ abstract class Event
         self::TYPE_CHECK_OPERATION_RESULTS,
     ];
 
-    /** @var int */
-    private $time;
-
-    /** @var string */
-    private $type;
-
-    /** @var Operation|null */
-    private $operation;
+    private int $time;
+    private string $type;
+    private ?Operation $operation;
 
     /**
      * Event constructor.

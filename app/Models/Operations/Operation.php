@@ -36,23 +36,12 @@ abstract class Operation
     protected const MIN_VALUE = 0;
     protected const MAX_VALUE = 0;
 
-    /** @var int */
-    protected $id;
-
-    /** @var int */
-    protected $deltaT;
-
-    /** @var string */
-    protected $variable;
-
-    /** @var int */
-    protected $value;
-
-    /** @var int */
-    protected $timeout;
-
-    /** @var bool */
-    protected $critical;
+    protected int $id = 0;
+    protected int $deltaT = 0;
+    protected string $variable = '';
+    protected int $value = 0;
+    protected int $timeout = 0;
+    protected bool $critical = false;
 
     protected function __construct(int $id, int $deltaT, string $variable, int $value, int $timeout, bool $critical = self::CRITICAL_DEFAULT)
     {

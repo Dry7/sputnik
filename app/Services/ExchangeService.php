@@ -16,14 +16,9 @@ class ExchangeService
 {
     private const ENDPOINT = '/settings';
 
-    /** @var Client */
-    private $client;
-
-    /** @var string */
-    private $uri;
-
-    /** @var array */
-    private $clientOptions;
+    private Client $client;
+    private string $uri;
+    private array $clientOptions;
 
     public function __construct(Client $client, string $uri, float $timeout)
     {

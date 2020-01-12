@@ -14,7 +14,7 @@ class BaseException extends Exception
     const OPERATION = 13;
     const EVENT = 14;
 
-    protected $context = [];
+    protected array $context = [];
 
     public function getContext(): array
     {

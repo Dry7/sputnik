@@ -8,11 +8,8 @@ use Illuminate\Log\LogManager;
 
 class TerminateService
 {
-    /** @var bool */
-    private $active;
-
-    /** @var LogManager */
-    private $logger;
+    private bool $active;
+    private LogManager $logger;
 
     public function __construct(LogManager $logger, bool $active = true)
     {
