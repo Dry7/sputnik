@@ -12,7 +12,7 @@ services:
 
   composer:
     build: ./docker/composer
-    command: require friendsofphp/php-cs-fixer
+    command: install
     volumes:
       - .:/app
 
