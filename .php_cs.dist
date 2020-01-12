@@ -2,7 +2,6 @@
 
 $rules = [
     '@PSR2' => true,
-//    '@PHP71Migration' => true,
     'array_syntax' => ['syntax' => 'short'],
     'cast_spaces' => ['space' => 'none'],
     'class_attributes_separation' => ['elements' => ['method']],
