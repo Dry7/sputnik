@@ -34,24 +34,30 @@ class AppServiceProvider extends ServiceProvider
             $this->app->bind(HandlerStack::class, $guzzleHandleStack);
         }
 
-        $this->app->singleton(Client::class, static fn () => new Client([
+        $this->app->singleton(
+            Client::class,
+            static fn () => new Client([
                 'handler' => app(HandlerStack::class),
                 'on_stats' => static fn (TransferStats $stats) => Log::info('Request ' . $stats->getEffectiveUri(), $stats->getHandlerStats())
             ])
         );
-        $this->app->singleton(ExchangeService::class, static fn (Application $app) => new ExchangeService(
-                $app[Client::class],
-                config('sputnik.exchange_uri'),
-                config('sputnik.exchange_timeout')
-            )
+        $this->app->singleton(
+            ExchangeService::class,
+            static fn (Application $app) => new ExchangeService(
+            $app[Client::class],
+            config('sputnik.exchange_uri'),
+            config('sputnik.exchange_timeout')
+        )
         );
-        $this->app->singleton(FlightProgramService::class, static fn (Application $app) => new FlightProgramService(
-                $app[TelemetryService::class],
-                $app[ExchangeService::class],
-                $app[TimeService::class],
-                $app[LogManager::class],
-                config('sputnik.telemetry_freq')
-            )
+        $this->app->singleton(
+            FlightProgramService::class,
+            static fn (Application $app) => new FlightProgramService(
+            $app[TelemetryService::class],
+            $app[ExchangeService::class],
+            $app[TimeService::class],
+            $app[LogManager::class],
+            config('sputnik.telemetry_freq')
+        )
         );
         $this->app->singleton(TimeService::class, static fn (Application $app) => new TimeService($app->runningUnitTests()));
         $this->app->singleton(TerminateService::class, static fn (Application $app) => new TerminateService($app[LogManager::class]));

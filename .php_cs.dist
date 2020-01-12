@@ -45,18 +45,13 @@ $rules = [
     'void_return' => true,
 ];
 
-$finder = PhpCsFixer\Finder::create()
-    ->exclude('somedir')
-    ->notPath('src/Symfony/Component/Translation/Tests/fixtures/resources.php')
-    ->in(__DIR__ . '/app')
-    ->in(__DIR__ . '/config')
-    ->in(__DIR__ . '/database')
-    ->in(__DIR__ . '/routes')
-    ->in(__DIR__ . '/tests')
-;
-
 return PhpCsFixer\Config::create()
     ->setRules($rules)
-    ->setFinder($finder)
+    ->setFinder(PhpCsFixer\Finder::create()
+                    ->in(__DIR__ . '/app')
+                    ->in(__DIR__ . '/config')
+                    ->in(__DIR__ . '/database')
+                    ->in(__DIR__ . '/routes')
+                    ->in(__DIR__ . '/tests'))
     ->setRiskyAllowed(true)
 ;

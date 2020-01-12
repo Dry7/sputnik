@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Logging;
 
 use Carbon\Carbon;
-use Sputnik\Logging\ErrorFormatter;
 use Sputnik\Logging\TelemetryFormatter;
 use Tests\TestCase;
 
