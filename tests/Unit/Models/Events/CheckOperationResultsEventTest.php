@@ -17,7 +17,7 @@ use stdClass;
 
 class CheckOperationResultsEventTest extends TestCase
 {
-    public function t2estExecute(): void
+    public function testExecute(): void
     {
         // arrange
         $operation = self::createOperation();
